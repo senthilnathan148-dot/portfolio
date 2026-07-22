@@ -20,6 +20,10 @@ const HOME_LIMIT = 6;
 /* true when we are on reviews.html (shows every review, no limit) */
 const IS_FULL_PAGE = document.body.dataset.page === 'reviews';
 
+/* The site owner. Only this Google account sees the moderation panel
+   and can approve / hide / delete reviews. */
+const ADMIN_EMAIL = 'senthilnathan148@gmail.com';
+
 const isConfigured = () =>
   SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.length > 20;
 
@@ -68,6 +72,7 @@ const initReviews = async () => {
     currentUser = session?.user ?? null;
     refreshAuthUI();
     if (currentUser) loadMyReview();
+    loadAdminPanel();
   });
 
   const { data: { session } } = await sb.auth.getSession();
@@ -76,6 +81,7 @@ const initReviews = async () => {
 
   await loadReviews();
   if (currentUser) await loadMyReview();
+  await loadAdminPanel();
 };
 
 /* ═══ 2 · AUTH ═══ */
@@ -92,6 +98,7 @@ const signOut = async () => {
   currentUser = null;
   myReview = null;
   refreshAuthUI();
+  loadAdminPanel();
   closeReviewModal();
 };
 
@@ -223,6 +230,95 @@ const loadMyReview = async () => {
     writeBtn.textContent = 'Write a review';
     if (note) note.hidden = true;
   }
+};
+
+/* ═══ 4b · ADMIN MODERATION (site owner only) ═══ */
+const isAdmin = () => !!currentUser && currentUser.email === ADMIN_EMAIL;
+
+const loadAdminPanel = async () => {
+  let panel = document.getElementById('adminPanel');
+
+  // not the owner → make sure no panel is showing, then stop
+  if (!isAdmin()) { if (panel) panel.remove(); return; }
+
+  const grid = document.getElementById('reviewGrid');
+  if (!grid) return;
+
+  if (!panel) {
+    panel = document.createElement('section');
+    panel.id = 'adminPanel';
+    panel.className = 'admin-panel glass';
+    grid.parentNode.insertBefore(panel, grid);
+  }
+  panel.innerHTML = `<p class="admin-loading">Loading moderation panel…</p>`;
+
+  const { data, error } = await sb
+    .from('reviews')
+    .select('id, name, email, course, rating, review, approved, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    panel.innerHTML = `<p class="admin-loading">Could not load reviews: ${esc(error.message)}</p>`;
+    return;
+  }
+
+  const pending = (data || []).filter(r => !r.approved);
+  const live = (data || []).filter(r => r.approved);
+
+  panel.innerHTML = `
+    <div class="admin-head">
+      <span class="admin-badge">★ Admin</span>
+      <span class="admin-title">Review moderation</span>
+      <span class="admin-count">${pending.length} pending · ${live.length} live</span>
+    </div>
+    ${pending.length
+      ? `<h4 class="admin-sub admin-sub-hot">Waiting for your approval (${pending.length})</h4>
+         <div class="admin-list">${pending.map(adminCard).join('')}</div>`
+      : `<p class="admin-empty">No reviews waiting — you're all caught up. 🎉</p>`}
+    ${live.length
+      ? `<h4 class="admin-sub">Live on the site (${live.length})</h4>
+         <div class="admin-list">${live.map(adminCard).join('')}</div>`
+      : ''}`;
+
+  panel.querySelectorAll('[data-approve]').forEach(b =>
+    b.onclick = () => adminSetApproved(b.dataset.approve, true));
+  panel.querySelectorAll('[data-hide]').forEach(b =>
+    b.onclick = () => adminSetApproved(b.dataset.hide, false));
+  panel.querySelectorAll('[data-del]').forEach(b =>
+    b.onclick = () => adminDelete(b.dataset.del));
+};
+
+const adminCard = r => `
+  <article class="admin-card ${r.approved ? 'is-live' : 'is-pending'}">
+    <div class="ac-top">
+      <span class="ac-stars">${starsHTML(r.rating)}</span>
+      <span class="ac-status">${r.approved ? 'Live' : 'Pending'}</span>
+    </div>
+    <p class="ac-text">${esc(r.review)}</p>
+    <p class="ac-meta"><strong>${esc(r.name)}</strong> · ${esc(r.course)}${r.email ? ' · ' + esc(r.email) : ''} · ${timeAgo(r.created_at)}</p>
+    <div class="ac-actions">
+      ${r.approved
+        ? `<button class="ac-btn ac-hide" data-hide="${r.id}" type="button">Hide</button>`
+        : `<button class="ac-btn ac-approve" data-approve="${r.id}" type="button">✓ Approve</button>`}
+      <button class="ac-btn ac-del" data-del="${r.id}" type="button">Delete</button>
+    </div>
+  </article>`;
+
+const adminSetApproved = async (id, approved) => {
+  const { error } = await sb.from('reviews').update({ approved }).eq('id', id);
+  if (error) return toast('Failed: ' + error.message, true);
+  toast(approved ? 'Approved — now live on the site ✓' : 'Hidden from the site');
+  await loadReviews();
+  await loadAdminPanel();
+};
+
+const adminDelete = async id => {
+  if (!confirm('Delete this review permanently? This cannot be undone.')) return;
+  const { error } = await sb.from('reviews').delete().eq('id', id);
+  if (error) return toast('Failed: ' + error.message, true);
+  toast('Review deleted');
+  await loadReviews();
+  await loadAdminPanel();
 };
 
 /* ═══ 5 · FORM ═══ */
