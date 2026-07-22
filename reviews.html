@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Reviews — Senthil Nathan A</title>
+<meta name="description" content="What students say about Senthil Nathan A's CAD/CAM, automotive design and cloud training programmes." />
+<meta name="theme-color" content="#F5F8FF" />
+
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/variables.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/sections.css" />
+<link rel="stylesheet" href="css/animations.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body data-page="reviews">
+
+<!-- ═══ BACKGROUND LAYERS ═══ -->
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="bg-aurora" aria-hidden="true"></div>
+<div class="bg-noise" aria-hidden="true"></div>
+<div class="mouse-glow" id="mouseGlow" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- ═══ NAVIGATION ═══ -->
+<header>
+<nav id="nav" aria-label="Main navigation">
+  <a class="logo magnetic" href="index.html" aria-label="Back to home">
+    <img class="logo-img" src="assets/logo.png" alt="SN logo" width="44" height="44" />
+    <span class="logo-text">Senthil<em>Nathan</em></span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html#about" class="nav-link">About</a></li>
+    <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+    <li><a href="index.html#experience" class="nav-link">Experience</a></li>
+    <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+    <li><a href="index.html#certificates" class="nav-link">Certificates</a></li>
+    <li><a href="index.html#education" class="nav-link">Education</a></li>
+    <li><a href="index.html#training" class="nav-link">Training</a></li>
+    <li><a href="index.html#testimonials" class="nav-link">Reviews</a></li>
+    <li><a href="index.html#contact" class="nav-link nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+</header>
+
+<main>
+
+<section id="all-reviews" class="page-section" aria-label="All student reviews">
+  <div class="wrap">
+    <a class="back-link magnetic reveal" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to portfolio
+    </a>
+
+    <header class="sec-head reveal">
+      <span class="sec-num" aria-hidden="true">★</span>
+      <p class="sec-label">Kind words</p>
+      <h2 class="sec-title">All Student <span class="grad-text">Reviews</span></h2>
+      <p class="sec-sub">Every review below was written by a student who trained with me.</p>
+    </header>
+
+    <div class="review-bar reveal">
+      <div class="review-summary" id="reviewSummary" hidden></div>
+      <div class="review-actions">
+        <div class="review-user" id="reviewUser" hidden></div>
+        <button class="btn btn-ghost magnetic" id="reviewLoginBtn" type="button">
+          <span class="g-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7C21.7 18.9 23 15.9 23 12.3z"/><path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.6 14.7a7.2 7.2 0 0 1 0-4.6v-3H1.8a12 12 0 0 0 0 10.6l3.8-3z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.2.6 4.4 1.7l3.3-3.3A12 12 0 0 0 1.8 7.1l3.8 3C6.5 7.4 9 4.8 12 4.8z"/></svg>
+          </span>
+          <span>Sign in with Google to review</span>
+        </button>
+        <button class="btn btn-primary magnetic" id="reviewWriteBtn" type="button" hidden><span>Write a review</span></button>
+      </div>
+    </div>
+    <p class="review-note" id="reviewPending" hidden></p>
+
+    <div class="review-grid" id="reviewGrid"></div>
+    <div class="review-more" id="reviewMore" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="wrap footer-inner">
+    <span>© 2026 Senthil Nathan A · Pondicherry, Tamil Nadu</span>
+    <span class="footer-tag">Designed &amp; built with <span class="grad-text">HTML · CSS · JS</span> — no frameworks</span>
+    <a href="#all-reviews" class="back-top magnetic" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+  </div>
+</footer>
+
+<!-- ═══ WRITE-A-REVIEW MODAL ═══ -->
+<div class="modal-overlay" id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+  <div class="modal glass review-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="reviewModalTitle">Share your experience</span>
+      <button class="modal-close magnetic" id="reviewModalClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <form class="review-form" id="reviewForm">
+      <label class="rf-label" for="starInput">Your rating</label>
+      <div class="star-input" id="starInput"></div>
+
+      <label class="rf-label" for="reviewCourse">Course you took</label>
+      <select class="rf-select" id="reviewCourse" required></select>
+
+      <label class="rf-label" for="reviewText">Your review</label>
+      <textarea class="rf-textarea" id="reviewText" rows="5" maxlength="800" required
+                placeholder="What did you learn? How were the sessions? Would you recommend the training?"></textarea>
+
+      <p class="rf-hint">Your review is checked before it appears on the site.</p>
+      <button class="btn btn-primary rf-submit" id="reviewSubmitBtn" type="submit">Submit review</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/main.js" defer></script>
+<script src="js/reviews.js" defer></script>
+</body>
+</html>

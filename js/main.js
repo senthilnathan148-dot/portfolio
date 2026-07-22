@@ -1,0 +1,831 @@
+/* ═══════════════════════════════════════════════════════════
+   SENTHIL NATHAN A — PORTFOLIO
+   Vanilla ES6 · no frameworks
+   ═══════════════════════════════════════════════════════════ */
+'use strict';
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/* ═══ 1 · CANVAS PARTICLE FIELD ═══ */
+const initParticles = () => {
+  const canvas = document.getElementById('particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, particles;
+  const mouse = { x: -9999, y: -9999 };
+
+  const resize = () => {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    const count = Math.min(110, Math.floor((w * h) / 16000));
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.6 + 0.4,
+      hue: Math.random() > 0.5 ? '8,145,178' : '37,99,235',
+      a: Math.random() * 0.5 + 0.15,
+    }));
+  };
+
+  const draw = () => {
+    ctx.clearRect(0, 0, w, h);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+
+      // gentle push away from cursor
+      const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 120) {
+        p.x += (dx / dist) * 0.6;
+        p.y += (dy / dist) * 0.6;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.hue},${p.a})`;
+      ctx.fill();
+    }
+    // connective lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 110) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(8,145,178,${0.08 * (1 - d / 110)})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+    if (!reduceMotion) requestAnimationFrame(draw);
+  };
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  resize();
+  draw();
+};
+
+/* ═══ 2 · CUSTOM CURSOR + MOUSE GLOW ═══ */
+const initCursor = () => {
+  if (!isFinePointer) return;
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const glow = document.getElementById('mouseGlow');
+  if (!dot || !ring || !glow) return;
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let rx = mx, ry = my, gx = mx, gy = my;
+
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  const loop = () => {
+    rx = lerp(rx, mx, 0.18);
+    ry = lerp(ry, my, 0.18);
+    gx = lerp(gx, mx, 0.06);
+    gy = lerp(gy, my, 0.06);
+    dot.style.left = `${mx}px`; dot.style.top = `${my}px`;
+    ring.style.left = `${rx}px`; ring.style.top = `${ry}px`;
+    glow.style.left = `${gx}px`; glow.style.top = `${gy}px`;
+    requestAnimationFrame(loop);
+  };
+  loop();
+
+  const hoverables = 'a, button, .flip-card, .tag, .tilt';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverables)) ring.classList.add('is-hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverables)) ring.classList.remove('is-hover');
+  });
+};
+
+/* ═══ 3 · MAGNETIC ELEMENTS ═══ */
+const initMagnetic = () => {
+  if (!isFinePointer || reduceMotion) return;
+  document.querySelectorAll('.magnetic').forEach(el => {
+    const strength = 0.35;
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width / 2) * strength;
+      const y = (e.clientY - r.top - r.height / 2) * strength;
+      el.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+      el.style.transform = '';
+      setTimeout(() => (el.style.transition = ''), 500);
+    });
+  });
+};
+
+/* ═══ 4 · NAV — scroll state, progress bar, active link, hamburger ═══ */
+const initNav = () => {
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+  const progress = document.getElementById('scrollProgress');
+  const links = [...document.querySelectorAll('.nav-link')];
+  // only same-page links (#section) can be scroll-spied.
+  // On reviews.html / gallery.html the links are "index.html#about",
+  // which is NOT a valid CSS selector — so filter those out first.
+  const spy = links
+    .map(l => ({ link: l, href: l.getAttribute('href') || '' }))
+    .filter(x => x.href.startsWith('#') && x.href.length > 1)
+    .map(x => ({ ...x, section: document.getElementById(x.href.slice(1)) }))
+    .filter(x => x.section);
+
+  const onScroll = () => {
+    nav.classList.toggle('scrolled', scrollY > 40);
+    if (progress) {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progress.style.width = max > 0 ? `${(scrollY / max) * 100}%` : '0%';
+    }
+
+    if (!spy.length) return;          // sub-pages: nothing to highlight
+    let current = spy[0];
+    for (const s of spy) {
+      if (s.section.getBoundingClientRect().top <= innerHeight * 0.35) current = s;
+    }
+    spy.forEach(s => s.link.classList.toggle('active', s === current));
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // hamburger
+  const burger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  const toggle = open => {
+    burger.classList.toggle('open', open);
+    navLinks.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+    // stagger link entrance
+    navLinks.querySelectorAll('.nav-link').forEach((l, i) => {
+      l.style.transitionDelay = open ? `${0.05 + i * 0.04}s` : '0s';
+    });
+  };
+  burger.addEventListener('click', () => toggle(!burger.classList.contains('open')));
+  navLinks.addEventListener('click', e => { if (e.target.closest('a')) toggle(false); });
+};
+
+/* ═══ 5 · TYPING EFFECT ═══ */
+const initTyping = () => {
+  const roles = ['SolidWorks & CATIA V5', 'AutoCAD & Creo', 'Automotive BIW Design', 'AWS Cloud & IoT', 'Fusion 360 & Inventor'];
+  const el = document.getElementById('typed');
+  if (!el) return;
+  if (reduceMotion) { el.textContent = roles[0]; return; }
+  let ri = 0, ci = 0, deleting = false;
+  const tick = () => {
+    const word = roles[ri];
+    el.textContent = word.slice(0, ci);
+    if (!deleting && ci < word.length) { ci++; setTimeout(tick, 62); }
+    else if (!deleting) { deleting = true; setTimeout(tick, 1700); }
+    else if (ci > 0) { ci--; setTimeout(tick, 30); }
+    else { deleting = false; ri = (ri + 1) % roles.length; setTimeout(tick, 350); }
+  };
+  tick();
+};
+
+/* ═══ 6 · COUNTER ANIMATION ═══ */
+const initCounters = () => {
+  const counters = document.querySelectorAll('[data-count]');
+  const animate = el => {
+    const target = +el.dataset.count;
+    const dur = 1600;
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min((now - t0) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString();
+      if (p < 1) requestAnimationFrame(step);
+    };
+    reduceMotion ? (el.textContent = target.toLocaleString()) : requestAnimationFrame(step);
+  };
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { animate(e.target); io.unobserve(e.target); } });
+  }, { threshold: 0.6 });
+  counters.forEach(c => io.observe(c));
+};
+
+/* ═══ 7 · DATA — skills, certificates, projects, testimonials ═══ */
+const SKILLS = [
+  { name: 'SolidWorks', cat: 'CAD', pct: 92, level: 'Expert Level', logo: 'https://img.icons8.com/?size=100&id=62397&format=png&color=000000' },
+  { name: 'AutoCAD', cat: 'CAD', pct: 90, level: 'Expert Level', logo: 'assets/skill-autodesk.svg', local: true },
+  { name: 'CATIA V5', cat: 'CAD / BIW', pct: 88, level: 'Advanced', logo: 'https://img.icons8.com/?size=100&id=6LuKZMwS6lAo&format=png&color=000000' },
+  { name: 'Excel Expert', cat: 'Productivity', pct: 82, level: 'Advanced', logo: 'https://img.icons8.com/?size=100&id=117561&format=png&color=000000' },
+  { name: 'Fusion 360', cat: 'CAD', pct: 78, level: 'Proficient', logo: 'assets/skill-autodesk.svg', local: true },
+  { name: 'Creo', cat: 'CAD', pct: 75, level: 'Proficient', logo: 'https://img.icons8.com/?size=100&id=nHO01oOdNoK4&format=png&color=000000' },
+  { name: 'Inventor', cat: 'CAD', pct: 72, level: 'Proficient', logo: 'assets/skill-autodesk.svg', local: true },
+  { name: 'Photoshop', cat: 'Design', pct: 70, level: 'Proficient', logo: 'https://img.icons8.com/?size=100&id=13677&format=png&color=000000' },
+  { name: 'AWS Cloud', cat: 'Cloud', pct: 68, level: 'Intermediate', logo: 'https://img.icons8.com/?size=100&id=wU62u24brJ44&format=png&color=000000' },
+  { name: 'Android / IoT', cat: 'Tech', pct: 62, level: 'Intermediate', logo: 'https://img.icons8.com/?size=100&id=17836&format=png&color=000000' },
+  { name: 'After Effects', cat: 'Motion Graphics', pct: 40, level: 'Basic Knowledge', logo: 'https://img.icons8.com/color/96/adobe-after-effects.png' },
+  { name: 'Unreal Engine', cat: '3D / Real-Time', pct: 35, level: 'Basic Knowledge', logo: 'https://img.icons8.com/color/96/unreal-engine.png', dark: true },
+];
+
+const CERTS = [
+  { year: '2022', name: 'Proficient in SolidWorks', issuer: 'Dassault Systèmes', logo: 'https://img.icons8.com/?size=100&id=62397&format=png&color=000000', url: 'https://drive.google.com/file/d/1c94qHx1OYNrQayjJrOIKp8s9PVhU9J8_/view' },
+  { year: '2026', name: 'Proficient in Revit BIM', issuer: 'Autodesk', logo: 'assets/skill-autodesk.svg', local: true, url: 'https://drive.google.com/file/d/1bLyZTA7sLTDtKllxk07mBBCULRm1x6FX/view?usp=sharing' },
+  { year: '2022', name: 'Proficient in Revit MEP', issuer: 'Autodesk', logo: 'assets/skill-autodesk.svg', local: true, url: 'https://drive.google.com/file/d/1qfhgF6BLsI6WRR5uxHm8Mkd5DyCDY1MI/view' },
+  { year: '2022', name: 'Master in Auto Body Design', issuer: 'Dassault Systèmes & Autodesk', logo: 'https://img.icons8.com/?size=100&id=12018&format=png&color=000000', url: 'https://drive.google.com/file/d/1Kzk2K7m6Fo7QIpjf8o8y8thkIja4bFvu/view' },
+  { year: '2025', name: 'AWS Academy Cloud Foundations', issuer: 'Amazon Web Services', logo: 'https://img.icons8.com/?size=100&id=wU62u24brJ44&format=png&color=000000', url: 'https://drive.google.com/file/d/1_Q-TrFKoh4llJNq7AblC3NlBBdfSQy-P/view' },
+  { year: 'Global', name: 'AutoCAD Certified Professional', issuer: 'Autodesk', logo: 'assets/skill-autodesk.svg', local: true, url: 'https://drive.google.com/file/d/1bmZODMoHRmOXsuE_5SnPSFie-M5_hj-z/view' },
+];
+
+/* ═══ PROJECT VIDEOS ════════════════════════════════════════
+   Silent demo clips (audio removed). They autoplay muted on
+   loop when scrolled into view. Add more by dropping an mp4
+   in assets/videos and adding a line here.
+   ═══════════════════════════════════════════════════════════ */
+const PROJECT_VIDEOS = [
+  { src: 'assets/videos/project-1.mp4', poster: 'assets/videos/project-1.jpg', title: 'MetaHuman Animator — video to 3D performance' },
+  { src: 'assets/videos/project-2.mp4', poster: 'assets/videos/project-2.jpg', title: 'Live Link Face — real-time facial capture' },
+  { src: 'assets/videos/project-3.mp4', poster: 'assets/videos/project-3.jpg', title: 'Sequencer — cinematic scene & camera work' },
+];
+
+/* ═══ TRAINING PHOTOS ═══════════════════════════════════════
+   45 classroom photos, auto-optimised.
+   To add more: drop them in assets/gallery and add a line here
+   as { t: 'thumbnail path', f: 'full-size path' }
+   ═══════════════════════════════════════════════════════════ */
+const TRAINING_PHOTOS = [
+  { t: 'assets/gallery/g01-t.jpg', f: 'assets/gallery/g01.jpg' },
+  { t: 'assets/gallery/g02-t.jpg', f: 'assets/gallery/g02.jpg' },
+  { t: 'assets/gallery/g03-t.jpg', f: 'assets/gallery/g03.jpg' },
+  { t: 'assets/gallery/g04-t.jpg', f: 'assets/gallery/g04.jpg' },
+  { t: 'assets/gallery/g05-t.jpg', f: 'assets/gallery/g05.jpg' },
+  { t: 'assets/gallery/g06-t.jpg', f: 'assets/gallery/g06.jpg' },
+  { t: 'assets/gallery/g07-t.jpg', f: 'assets/gallery/g07.jpg' },
+  { t: 'assets/gallery/g08-t.jpg', f: 'assets/gallery/g08.jpg' },
+  { t: 'assets/gallery/g09-t.jpg', f: 'assets/gallery/g09.jpg' },
+  { t: 'assets/gallery/g10-t.jpg', f: 'assets/gallery/g10.jpg' },
+  { t: 'assets/gallery/g11-t.jpg', f: 'assets/gallery/g11.jpg' },
+  { t: 'assets/gallery/g12-t.jpg', f: 'assets/gallery/g12.jpg' },
+  { t: 'assets/gallery/g13-t.jpg', f: 'assets/gallery/g13.jpg' },
+  { t: 'assets/gallery/g14-t.jpg', f: 'assets/gallery/g14.jpg' },
+  { t: 'assets/gallery/g15-t.jpg', f: 'assets/gallery/g15.jpg' },
+  { t: 'assets/gallery/g16-t.jpg', f: 'assets/gallery/g16.jpg' },
+  { t: 'assets/gallery/g17-t.jpg', f: 'assets/gallery/g17.jpg' },
+  { t: 'assets/gallery/g18-t.jpg', f: 'assets/gallery/g18.jpg' },
+  { t: 'assets/gallery/g19-t.jpg', f: 'assets/gallery/g19.jpg' },
+  { t: 'assets/gallery/g20-t.jpg', f: 'assets/gallery/g20.jpg' },
+  { t: 'assets/gallery/g21-t.jpg', f: 'assets/gallery/g21.jpg' },
+  { t: 'assets/gallery/g22-t.jpg', f: 'assets/gallery/g22.jpg' },
+  { t: 'assets/gallery/g23-t.jpg', f: 'assets/gallery/g23.jpg' },
+  { t: 'assets/gallery/g24-t.jpg', f: 'assets/gallery/g24.jpg' },
+  { t: 'assets/gallery/g25-t.jpg', f: 'assets/gallery/g25.jpg' },
+  { t: 'assets/gallery/g26-t.jpg', f: 'assets/gallery/g26.jpg' },
+  { t: 'assets/gallery/g27-t.jpg', f: 'assets/gallery/g27.jpg' },
+  { t: 'assets/gallery/g28-t.jpg', f: 'assets/gallery/g28.jpg' },
+  { t: 'assets/gallery/g29-t.jpg', f: 'assets/gallery/g29.jpg' },
+  { t: 'assets/gallery/g30-t.jpg', f: 'assets/gallery/g30.jpg' },
+  { t: 'assets/gallery/g31-t.jpg', f: 'assets/gallery/g31.jpg' },
+  { t: 'assets/gallery/g32-t.jpg', f: 'assets/gallery/g32.jpg' },
+  { t: 'assets/gallery/g33-t.jpg', f: 'assets/gallery/g33.jpg' },
+  { t: 'assets/gallery/g34-t.jpg', f: 'assets/gallery/g34.jpg' },
+  { t: 'assets/gallery/g35-t.jpg', f: 'assets/gallery/g35.jpg' },
+  { t: 'assets/gallery/g36-t.jpg', f: 'assets/gallery/g36.jpg' },
+  { t: 'assets/gallery/g37-t.jpg', f: 'assets/gallery/g37.jpg' },
+  { t: 'assets/gallery/g38-t.jpg', f: 'assets/gallery/g38.jpg' },
+  { t: 'assets/gallery/g39-t.jpg', f: 'assets/gallery/g39.jpg' },
+  { t: 'assets/gallery/g40-t.jpg', f: 'assets/gallery/g40.jpg' },
+  { t: 'assets/gallery/g41-t.jpg', f: 'assets/gallery/g41.jpg' },
+  { t: 'assets/gallery/g42-t.jpg', f: 'assets/gallery/g42.jpg' },
+  { t: 'assets/gallery/g43-t.jpg', f: 'assets/gallery/g43.jpg' },
+  { t: 'assets/gallery/g44-t.jpg', f: 'assets/gallery/g44.jpg' },
+  { t: 'assets/gallery/g45-t.jpg', f: 'assets/gallery/g45.jpg' },
+];
+
+/* ═══ MY WORK ═══════════════════════════════════════════════
+   Real projects only. To add a new one, copy a block below.
+
+   kind  — small label above the title
+   name  — project title
+   desc  — 1–3 sentences on what it does
+   tags  — technologies / tools used
+   live  — live website URL, or '' if there isn't one
+   git   — GitHub repo URL, or '' if it's private
+   img   — screenshot in assets/ e.g. 'assets/project-x.png'
+           (leave it out to use the built-in art below)
+   art   — built-in artwork: 'lab' | 'door' | 'chassis' | 'cloud' | 'tower'
+   ═══════════════════════════════════════════════════════════ */
+const PROJECTS = [
+  {
+    kind: 'Web Application · Full Stack',
+    name: 'Lab IT Ticket System — 3D Campus Labs',
+    desc: 'An interactive 3D lab portal built for Ethnotech Academy. Students rotate and zoom a live 3D view of the computer labs and click any PC to raise an IT ticket. Trainers, IT admins and lab allocators each get their own role-based dashboard to track, assign and resolve issues, with batch management and name import/export.',
+    tags: ['3D Web', 'JavaScript', 'Role-Based Login', 'Ticket Workflow', 'Netlify'],
+    live: 'https://friendly-malabi-0cde44.netlify.app/',
+    git: '',
+    img: 'assets/project-lab.jpg',   // screenshot (falls back to art below if missing)
+    art: 'lab',
+  },
+  {
+    kind: 'WebXR · 3D Experience',
+    name: 'VR Portfolio — Immersive 3D Résumé',
+    desc: 'My portfolio rebuilt as a walkable 3D space. Visitors drag to rotate, scroll to zoom, and can hit "Enter VR" to view it in a headset. Built with WebXR so it runs straight in the browser — no app, no install.',
+    tags: ['WebXR', 'Three.js', '3D Web', 'VR', 'GitHub Pages'],
+    live: 'https://senthilnathan148-dot.github.io/senthilvr/',
+    git: '',
+    img: 'assets/project-vr.jpg',    // add a screenshot here anytime
+    art: 'vr',
+  },
+  {
+    kind: 'Self-Learning · 3D & Virtual Production',
+    name: 'Unreal Engine — MetaHuman & Cinematics',
+    desc: 'Teaching myself Unreal Engine 5 in my own time. So far: driving a MetaHuman from my own video with MetaHuman Animator, live facial capture through Live Link Face, and building cinematic shots in Sequencer with lighting and camera moves. Clips below are from that practice.',
+    tags: ['Unreal Engine 5', 'MetaHuman', 'Live Link Face', 'Sequencer', 'Motion Capture'],
+    live: '',
+    git: '',
+    img: 'assets/project-unreal.jpg',
+    art: 'vr',
+  },
+];
+
+/* ═══ 8 · RENDER — skills ═══ */
+const renderSkills = () => {
+  const _g = document.getElementById('skillsGrid');
+  if (!_g) return;
+  _g.innerHTML = SKILLS.map((s, i) => `
+    <div class="flip-card reveal-scale" style="--d:${(i % 5) * 0.07}s" tabindex="0" role="button"
+         aria-label="${s.name}: ${s.pct} percent, ${s.level}">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="logo-chip"><img class="${s.local ? 'local' : ''}" src="${s.logo}" alt="${s.name} logo" loading="lazy"></div>
+          <div class="skill-name">${s.name}</div>
+          <div class="skill-cat">${s.cat}</div>
+        </div>
+        <div class="flip-back" style="--pct:${s.pct}%">
+          <div class="b-pct">${s.pct}%</div>
+          <div class="b-bar"><div class="b-fill"></div></div>
+          <div class="b-label">${s.level}</div>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+/* ═══ 9 · RENDER — certificates ═══ */
+const renderCerts = () => {
+  const _g = document.getElementById('certGrid');
+  if (!_g) return;
+  _g.innerHTML = CERTS.map((c, i) => `
+    <div class="flip-card cert-flip reveal-scale" style="--d:${(i % 3) * 0.09}s" tabindex="0" role="button"
+         aria-label="${c.name}, ${c.issuer}, ${c.year}" data-url="${c.url}" data-name="${c.name}">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="logo-chip"><img class="${c.local ? 'local' : ''}" src="${c.logo}" alt="${c.issuer} logo" loading="lazy"></div>
+          <div class="skill-name">${c.name}</div>
+          <div class="skill-cat">${c.issuer}</div>
+        </div>
+        <div class="flip-back">
+          <div class="cert-year-big">${c.year}</div>
+          <div class="b-label" style="margin-top:8px">${c.issuer}</div>
+          <button class="cert-btn" data-open-cert>View Certificate ↗</button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+/* ═══ 10 · RENDER — projects (SVG preview art, no external images) ═══ */
+const projectArt = kind => {
+  const defs = `<defs>
+    <linearGradient id="pg-${kind}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00E5FF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="bg-${kind}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B1428"/><stop offset="1" stop-color="#050810"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg-${kind})"/>
+  <g stroke="rgba(0,229,255,0.07)" stroke-width="1">${Array.from({ length: 12 }, (_, i) => `<line x1="${i * 58}" y1="0" x2="${i * 58}" y2="360"/>`).join('')}${Array.from({ length: 7 }, (_, i) => `<line x1="0" y1="${i * 58}" x2="640" y2="${i * 58}"/>`).join('')}</g>`;
+
+  const art = {
+    lab: `<g fill="none" stroke="url(#pg-lab)" stroke-width="2.5">
+      <path d="M110 250 L320 160 L530 250 L320 340 Z" opacity="0.5"/>
+      <g stroke-linejoin="round">
+        <path d="M180 232 l52-22 34 14 -52 22z"/><path d="M198 224 v-30 l34 14 v30"/><path d="M232 208 v-30 l34 14 v30"/>
+        <path d="M280 190 l52-22 34 14 -52 22z"/><path d="M298 182 v-30 l34 14 v30"/><path d="M332 166 v-30 l34 14 v30"/>
+        <path d="M380 232 l52-22 34 14 -52 22z"/><path d="M398 224 v-30 l34 14 v30"/><path d="M432 208 v-30 l34 14 v30"/>
+        <path d="M280 288 l52-22 34 14 -52 22z"/><path d="M298 280 v-30 l34 14 v30"/><path d="M332 264 v-30 l34 14 v30"/>
+      </g>
+      <circle cx="332" cy="150" r="9" fill="url(#pg-lab)" stroke="none"/>
+      <path d="M332 128 v-26 M332 96 l-9 -9 M332 96 l9 -9" opacity="0.9"/>
+      <rect x="404" y="66" width="150" height="52" rx="8" opacity="0.9"/>
+      <path d="M420 84 h84 M420 98 h58" opacity="0.8"/>
+      <circle cx="536" cy="80" r="5" fill="url(#pg-lab)" stroke="none"/>
+    </g><text x="110" y="330" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">3D LAB VIEW · TICKET #OPEN · ROLE-BASED</text>`,
+    vr: `<g fill="none" stroke="url(#pg-vr)" stroke-width="2.5">
+      <path d="M195 150 h250 a26 26 0 0 1 26 26 v58 a26 26 0 0 1 -26 26 h-58 l-24 26 -36 0 -24 -26 h-108 a26 26 0 0 1 -26 -26 v-58 a26 26 0 0 1 26 -26 z"/>
+      <ellipse cx="252" cy="199" rx="34" ry="26"/>
+      <ellipse cx="388" cy="199" rx="34" ry="26"/>
+      <path d="M169 176 h-22 M471 176 h22" opacity="0.85"/>
+      <ellipse cx="320" cy="200" rx="150" ry="52" stroke-dasharray="4 8" opacity="0.5"/>
+      <ellipse cx="320" cy="200" rx="150" ry="52" stroke-dasharray="4 8" opacity="0.45" transform="rotate(58 320 200)"/>
+      <ellipse cx="320" cy="200" rx="150" ry="52" stroke-dasharray="4 8" opacity="0.45" transform="rotate(-58 320 200)"/>
+      <circle cx="470" cy="200" r="5" fill="url(#pg-vr)" stroke="none"/>
+      <circle cx="170" cy="200" r="5" fill="url(#pg-vr)" stroke="none"/>
+    </g><text x="150" y="318" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">WEBXR · DRAG TO ROTATE · ENTER VR</text>`,
+    door: `<g fill="none" stroke="url(#pg-door)" stroke-width="2.5">
+      <path d="M170 260 L170 130 Q170 95 210 90 L420 78 Q470 76 480 120 L490 260 Z"/>
+      <path d="M195 250 L195 140 Q196 112 225 108 L415 98"/>
+      <circle cx="440" cy="175" r="14"/><path d="M300 165 h95" stroke-dasharray="5 6"/>
+      <path d="M210 200 h230" opacity="0.5" stroke-dasharray="3 7"/>
+    </g><text x="170" y="305" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">CATIA V5 · BIW-DOOR-PNL-001</text>`,
+    chassis: `<g fill="none" stroke="url(#pg-chassis)" stroke-width="2.5">
+      <circle cx="180" cy="240" r="46"/><circle cx="180" cy="240" r="18"/>
+      <circle cx="470" cy="240" r="46"/><circle cx="470" cy="240" r="18"/>
+      <path d="M180 240 L280 140 L400 140 L470 240 M280 140 L310 240 M400 140 L360 100 L300 96"/>
+    </g><g fill="rgba(0,229,255,0.5)">${Array.from({ length: 24 }, () => { const x = 150 + Math.random() * 360, y = 90 + Math.random() * 100; return `<circle cx="${x}" cy="${y}" r="1.4"/>`; }).join('')}</g>
+    <text x="150" y="310" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">SCAN-TO-CAD · POINT CLOUD 84%</text>`,
+    cloud: `<g fill="none" stroke="url(#pg-cloud)" stroke-width="2.5">
+      <path d="M400 150 h-1.26A80 80 0 1 0 310 250 h90 a50 50 0 0 0 0-100z" transform="translate(-40,-45) scale(1.05)"/>
+      <rect x="200" y="240" width="70" height="46" rx="8"/><rect x="300" y="240" width="70" height="46" rx="8"/><rect x="400" y="240" width="70" height="46" rx="8"/>
+      <path d="M235 240 v-25 h200 v25 M335 240 v-25"/>
+    </g><text x="200" y="320" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">AWS · EC2 · S3 · IOT-CORE</text>`,
+    tower: `<g fill="none" stroke="url(#pg-tower)" stroke-width="2.5">
+      <path d="M290 300 L320 70 L350 300 M296 250 h48 M301 200 h38 M306 150 h28 M311 105 h18"/>
+      <path d="M290 300 L350 300" stroke-width="4"/>
+      <path d="M320 70 l-35 -20 M320 70 l35 -20 M320 70 v-25"/>
+      <circle cx="320" cy="70" r="6" fill="url(#pg-tower)"/>
+      <path d="M410 120 a90 90 0 0 1 0 120 M440 100 a130 130 0 0 1 0 160" opacity="0.55"/>
+      <path d="M230 120 a90 90 0 0 0 0 120 M200 100 a130 130 0 0 0 0 160" opacity="0.55"/>
+    </g><text x="200" y="330" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">AUTOCAD · RF-ZONE ANALYSIS</text>`,
+  };
+  return `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">${defs}${art[kind]}</svg>`;
+};
+
+const renderProjects = () => {
+  const _g = document.getElementById('projectsGrid');
+  if (!_g) return;
+  const liveBtn = p => p.live && p.live !== '#' ? `
+    <a class="p-action p-live" href="${p.live}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+      Visit Live Site
+    </a>` : '';
+
+  const gitBtn = p => p.git && p.git !== '#' ? `
+    <a class="p-action p-git" href="${p.git}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>` : '';
+
+  _g.innerHTML = PROJECTS.map((p, i) => `
+    <article class="glass project-card reveal-scale" style="--d:${(i % 2) * 0.1}s">
+      <div class="project-media">
+        ${projectArt(p.art)}
+        ${p.img ? `<img src="${p.img}" alt="${p.name} screenshot" loading="lazy" class="project-shot" onerror="this.remove()">` : ''}
+        ${(liveBtn(p) || gitBtn(p)) ? `<div class="project-overlay">${liveBtn(p)}${gitBtn(p)}</div>` : ''}
+      </div>
+      <div class="project-body">
+        <span class="project-kind">${p.kind}</span>
+        <h3 class="project-name">${p.name}</h3>
+        <p class="project-desc">${p.desc}</p>
+        <div class="project-tags">${p.tags.map(t => `<span class="p-tag">${t}</span>`).join('')}</div>
+      </div>
+    </article>`).join('');
+};
+
+/* ═══ 10b · PROJECT DEMO VIDEOS (muted, autoplay in view) ═══ */
+const renderProjectVideos = () => {
+  const grid = document.getElementById('videoGrid');
+  const wrap = document.getElementById('videoWrap');
+  if (!grid) return;
+  if (!PROJECT_VIDEOS.length) { if (wrap) wrap.hidden = true; return; }
+
+  grid.innerHTML = PROJECT_VIDEOS.map((v, i) => `
+    <figure class="glass video-card reveal-scale" style="--d:${(i % 3) * 0.09}s" tabindex="0" role="button" aria-label="Play ${v.title} full size">
+      <div class="video-frame">
+        <video src="${v.src}" poster="${v.poster}"
+               muted playsinline loop preload="none"
+               onerror="this.closest('.video-card').remove(); window._vidCheck && window._vidCheck();"></video>
+        <span class="video-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+        <span class="video-badge">No sound</span>
+      </div>
+      <figcaption class="video-cap">${v.title}</figcaption>
+    </figure>`).join('');
+
+  window._vidCheck = () => { if (wrap && !grid.querySelector('.video-card')) wrap.hidden = true; };
+  window._vidCheck();
+
+  const cards = [...grid.querySelectorAll('.video-card')];
+
+  // reveal + lazy-load: only load and play when the card is on screen
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      const vid = e.target.querySelector('video');
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        if (vid.preload !== 'auto') { vid.preload = 'auto'; vid.load(); }
+        if (!reduceMotion) vid.play().catch(() => {});   // muted → allowed to autoplay
+      } else if (vid && !vid.paused) {
+        vid.pause();                                     // save battery off-screen
+      }
+    });
+  }, { threshold: 0.35 });
+  cards.forEach(c => io.observe(c));
+
+  /* ── click a card → open it full size ── */
+  const box  = document.getElementById('videoLightbox');
+  const bVid = document.getElementById('videoLightboxVid');
+  const bCap = document.getElementById('videoLightboxCap');
+  if (!box) return;
+  let vIdx = 0;
+
+  const showVideo = i => {
+    vIdx = (i + PROJECT_VIDEOS.length) % PROJECT_VIDEOS.length;
+    const v = PROJECT_VIDEOS[vIdx];
+    bVid.src = v.src;
+    bVid.poster = v.poster;
+    bVid.currentTime = 0;
+    bVid.play().catch(() => {});
+    if (bCap) bCap.textContent = `${v.title}  ·  ${vIdx + 1} / ${PROJECT_VIDEOS.length}`;
+  };
+
+  const openVideo = i => {
+    cards.forEach(c => c.querySelector('video')?.pause());   // hush the grid
+    showVideo(i);
+    box.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeVideo = () => {
+    box.classList.remove('active');
+    bVid.pause();
+    bVid.removeAttribute('src');
+    bVid.load();
+    document.body.style.overflow = '';
+  };
+
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.video-card');
+    if (card) openVideo(cards.indexOf(card));
+  });
+  grid.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const card = e.target.closest('.video-card');
+      if (card) { e.preventDefault(); openVideo(cards.indexOf(card)); }
+    }
+  });
+
+  box.addEventListener('click', e => {
+    if (e.target.closest('.vl-next')) return showVideo(vIdx + 1);
+    if (e.target.closest('.vl-prev')) return showVideo(vIdx - 1);
+    if (e.target.closest('.vl-sound')) {          // let them unmute if they want
+      bVid.muted = !bVid.muted;
+      box.classList.toggle('sound-on', !bVid.muted);
+      return;
+    }
+    if (e.target === box || e.target.closest('.vl-close')) closeVideo();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!box.classList.contains('active')) return;
+    if (e.key === 'Escape') closeVideo();
+    if (e.key === 'ArrowRight') showVideo(vIdx + 1);
+    if (e.key === 'ArrowLeft') showVideo(vIdx - 1);
+  });
+};
+
+/* ═══ 11b · TRAINING PHOTO GALLERY ═══ */
+const HOME_PHOTOS = 6;           // photos shown on the home page
+const GALLERY_STEP = 12;         // photos added per click on the gallery page
+const IS_GALLERY_PAGE = document.body.dataset.page === 'gallery';
+let galleryShown = 0;
+
+const renderTrainingPhotos = () => {
+  const grid = document.getElementById('trainGallery');
+  const wrap = document.getElementById('trainGalleryWrap');
+  const moreBox = document.getElementById('trainGalleryMore');
+  if (!grid) return;
+
+  if (!TRAINING_PHOTOS.length) { if (wrap) wrap.hidden = true; return; }
+
+  const countEl = document.getElementById('galleryCount');
+  if (countEl) countEl.textContent = `${TRAINING_PHOTOS.length} photos from real sessions — click any photo to view it larger`;
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+
+  const addBatch = () => {
+    const step = IS_GALLERY_PAGE ? GALLERY_STEP : HOME_PHOTOS;
+    const next = TRAINING_PHOTOS.slice(galleryShown, galleryShown + step);
+    const html = next.map((p, i) => `
+      <figure class="tg-item reveal-scale" style="--d:${(i % 3) * 0.08}s"
+              data-full="${p.f}" data-i="${galleryShown + i}" tabindex="0" role="button"
+              aria-label="Training photo ${galleryShown + i + 1}">
+        <img src="${p.t}" alt="Training session photo ${galleryShown + i + 1}" loading="lazy">
+        <span class="tg-zoom" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>
+        </span>
+      </figure>`).join('');
+    grid.insertAdjacentHTML('beforeend', html);
+    galleryShown += next.length;
+
+    grid.querySelectorAll('.reveal-scale:not(.visible)').forEach(el => io.observe(el));
+
+    if (moreBox) {
+      const left = TRAINING_PHOTOS.length - galleryShown;
+      if (left <= 0) {
+        moreBox.innerHTML = '';
+      } else if (IS_GALLERY_PAGE) {
+        // gallery page: load more in place
+        moreBox.innerHTML = `<button class="btn btn-ghost magnetic" id="tgMoreBtn" type="button"><span>Show ${Math.min(left, GALLERY_STEP)} more photos (${left} left)</span></button>`;
+        const btn = document.getElementById('tgMoreBtn');
+        if (btn) btn.onclick = addBatch;
+      } else {
+        // home page: send them to the full gallery page
+        moreBox.innerHTML = `<a class="btn btn-ghost magnetic" href="gallery.html"><span>View all ${TRAINING_PHOTOS.length} photos →</span></a>`;
+      }
+    }
+  };
+  addBatch();
+
+  /* ── lightbox with prev / next ── */
+  const box = document.getElementById('photoLightbox');
+  const boxImg = document.getElementById('photoLightboxImg');
+  const boxCap = document.getElementById('photoLightboxCap');
+  if (!box) return;
+  let idx = 0;
+
+  const show = i => {
+    idx = (i + TRAINING_PHOTOS.length) % TRAINING_PHOTOS.length;
+    boxImg.src = TRAINING_PHOTOS[idx].f;
+    if (boxCap) boxCap.textContent = `${idx + 1} / ${TRAINING_PHOTOS.length}`;
+  };
+  const open = i => {
+    show(i);
+    box.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    box.classList.remove('active');
+    boxImg.src = '';
+    document.body.style.overflow = '';
+  };
+
+  grid.addEventListener('click', e => {
+    const item = e.target.closest('.tg-item');
+    if (item) open(+item.dataset.i);
+  });
+  grid.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const item = e.target.closest('.tg-item');
+      if (item) { e.preventDefault(); open(+item.dataset.i); }
+    }
+  });
+
+  box.addEventListener('click', e => {
+    if (e.target.closest('.pl-next')) return show(idx + 1);
+    if (e.target.closest('.pl-prev')) return show(idx - 1);
+    if (e.target === box || e.target.closest('.pl-close')) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (!box.classList.contains('active')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') show(idx + 1);
+    if (e.key === 'ArrowLeft') show(idx - 1);
+  });
+};
+
+/* ═══ 12 · SCROLL REVEAL + TIMELINE ═══ */
+const initReveals = () => {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal, .reveal-scale, .reveal-line, .titem').forEach(el => io.observe(el));
+
+  // hero entrance on load
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#hero .reveal, #hero .reveal-line').forEach((el, i) => {
+      el.style.transitionDelay = `${0.1 + i * 0.12}s`;
+      el.classList.add('visible');
+      setTimeout(() => (el.style.transitionDelay = ''), 2000);
+    });
+  });
+
+  // timeline line fill follows scroll
+  const timeline = document.getElementById('timeline');
+  const fill = document.getElementById('timelineFill');
+  if (timeline && fill) {
+    const onScroll = () => {
+      const r = timeline.getBoundingClientRect();
+      const progress = Math.min(Math.max((innerHeight * 0.75 - r.top) / r.height, 0), 1);
+      fill.style.height = `${progress * 100}%`;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+};
+
+/* ═══ 13 · PARALLAX (hero shapes + mouse) ═══ */
+const initParallax = () => {
+  if (reduceMotion) return;
+  const layers = [...document.querySelectorAll('[data-depth]')];
+  let mx = 0, my = 0, sy = 0;
+
+  window.addEventListener('mousemove', e => {
+    mx = (e.clientX / innerWidth - 0.5) * 2;
+    my = (e.clientY / innerHeight - 0.5) * 2;
+  });
+  window.addEventListener('scroll', () => { sy = scrollY; }, { passive: true });
+
+  const loop = () => {
+    layers.forEach(el => {
+      const d = +el.dataset.depth;
+      el.style.translate = `${mx * d * 60}px ${my * d * 60 - sy * d * 0.6}px`;
+    });
+    requestAnimationFrame(loop);
+  };
+  loop();
+};
+
+/* ═══ 14 · 3D TILT CARDS ═══ */
+const initTilt = () => {
+  if (!isFinePointer || reduceMotion) return;
+  document.querySelectorAll('.tilt').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const rx = ((e.clientY - r.top) / r.height - 0.5) * -8;
+      const ry = ((e.clientX - r.left) / r.width - 0.5) * 8;
+      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+};
+
+/* ═══ 15 · FLIP CARDS (tap on touch) + CERT MODAL ═══ */
+const initFlipAndModal = () => {
+  document.addEventListener('click', e => {
+    const openBtn = e.target.closest('[data-open-cert]');
+    if (openBtn) {
+      e.stopPropagation();
+      const card = openBtn.closest('.flip-card');
+      openCertModal(card.dataset.url, card.dataset.name);
+      return;
+    }
+    const flip = e.target.closest('.flip-card');
+    if (flip) flip.classList.toggle('flipped');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const flip = e.target.closest?.('.flip-card');
+      if (flip) { e.preventDefault(); flip.classList.toggle('flipped'); }
+    }
+    if (e.key === 'Escape') closeCertModal();
+  });
+
+  const overlay = document.getElementById('certModal');
+  if (!overlay) return;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeCertModal(); });
+  document.getElementById('modalClose').addEventListener('click', closeCertModal);
+};
+
+const openCertModal = (driveUrl, title) => {
+  const m = document.getElementById('certModal');
+  if (!m) return;
+  const fileId = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+  if (!fileId) return;
+  document.getElementById('certModalFrame').src = `https://drive.google.com/file/d/${fileId}/preview`;
+  document.getElementById('certModalTitle').textContent = title;
+  document.getElementById('certModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+const closeCertModal = () => {
+  const m = document.getElementById('certModal');
+  if (!m) return;                      // page has no certificate modal
+  m.classList.remove('active');
+  const f = document.getElementById('certModalFrame');
+  if (f) f.src = '';
+  document.body.style.overflow = '';
+};
+
+/* ═══ BOOT ═══ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderSkills();
+  renderCerts();
+  renderProjects();
+  renderProjectVideos();
+  renderTrainingPhotos();
+  initParticles();
+  initCursor();
+  initNav();
+  initTyping();
+  initCounters();
+  initReveals();
+  initParallax();
+  initTilt();
+  initFlipAndModal();
+  initMagnetic();
+});

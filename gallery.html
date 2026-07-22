@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Training Gallery — Senthil Nathan A</title>
+<meta name="description" content="Photos from real CAD/CAM, automotive design and cloud training sessions delivered by Senthil Nathan A." />
+<meta name="theme-color" content="#F5F8FF" />
+
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/variables.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/sections.css" />
+<link rel="stylesheet" href="css/animations.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body data-page="gallery">
+
+<!-- ═══ BACKGROUND LAYERS ═══ -->
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="bg-aurora" aria-hidden="true"></div>
+<div class="bg-noise" aria-hidden="true"></div>
+<div class="mouse-glow" id="mouseGlow" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- ═══ NAVIGATION ═══ -->
+<header>
+<nav id="nav" aria-label="Main navigation">
+  <a class="logo magnetic" href="index.html" aria-label="Back to home">
+    <img class="logo-img" src="assets/logo.png" alt="SN logo" width="44" height="44" />
+    <span class="logo-text">Senthil<em>Nathan</em></span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html#about" class="nav-link">About</a></li>
+    <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+    <li><a href="index.html#experience" class="nav-link">Experience</a></li>
+    <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+    <li><a href="index.html#certificates" class="nav-link">Certificates</a></li>
+    <li><a href="index.html#education" class="nav-link">Education</a></li>
+    <li><a href="index.html#training" class="nav-link">Training</a></li>
+    <li><a href="index.html#testimonials" class="nav-link">Reviews</a></li>
+    <li><a href="index.html#contact" class="nav-link nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+</header>
+
+<main>
+
+<section id="all-photos" class="page-section" aria-label="All training photos">
+  <div class="wrap">
+    <a class="back-link magnetic reveal" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to portfolio
+    </a>
+
+    <header class="sec-head reveal">
+      <span class="sec-num" aria-hidden="true">◈</span>
+      <p class="sec-label">Training in action</p>
+      <h2 class="sec-title">Photo <span class="grad-text">Gallery</span></h2>
+      <p class="sec-sub" id="galleryCount">Real sessions, real classrooms — click any photo to view it larger</p>
+    </header>
+
+    <div class="train-gallery" id="trainGallery"></div>
+    <div class="tg-more" id="trainGalleryMore"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="wrap footer-inner">
+    <span>© 2026 Senthil Nathan A · Pondicherry, Tamil Nadu</span>
+    <span class="footer-tag">Designed &amp; built with <span class="grad-text">HTML · CSS · JS</span> — no frameworks</span>
+    <a href="#all-photos" class="back-top magnetic" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+  </div>
+</footer>
+
+<!-- ═══ PHOTO LIGHTBOX ═══ -->
+<div class="photo-lightbox" id="photoLightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="pl-close magnetic" type="button" aria-label="Close photo">✕</button>
+  <button class="pl-nav pl-prev" type="button" aria-label="Previous photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="pl-nav pl-next" type="button" aria-label="Next photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+  <figure class="pl-figure">
+    <img id="photoLightboxImg" src="" alt="Training session photo" />
+    <figcaption id="photoLightboxCap"></figcaption>
+  </figure>
+</div>
+
+<script src="js/main.js" defer></script>
+</body>
+</html>
