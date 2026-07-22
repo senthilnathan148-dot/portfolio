@@ -463,41 +463,68 @@ const projectArt = kind => {
 
 /* ═══ 10x · STUDENT PROJECTS (Android apps built by my students) ═══ */
 const STUDENT_PROJECTS = [
-  { name: 'Blood Donor App', students: 'ICE Batch', tech: 'Android Studio',
+  { name: 'Blood Donor App', students: 'ICE Batch', tech: 'Android Studio', grad: 'linear-gradient(160deg,#e53935,#b71c1c)',
     desc: 'Connects blood donors with people in urgent need nearby.', icon: 'assets/student/blood.png' },
-  { name: 'Braille Translator', students: 'Priyan', tech: 'Android Studio',
+  { name: 'Braille Translator', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#5c6bc0,#303f9f)',
     desc: 'Converts typed text into Braille to support visually-impaired users.', icon: 'assets/student/braille.png' },
-  { name: 'App Market', students: 'Tarun · Cova', tech: 'Android Studio',
+  { name: 'App Market', students: 'Tarun · Cova', tech: 'Android Studio', grad: 'linear-gradient(160deg,#29b6f6,#0277bd)',
     desc: 'An app-marketplace concept for browsing and downloading apps.', icon: 'assets/student/appmarket.png' },
-  { name: 'Sam Fire', students: 'Sanjay · Vishwaijeth', tech: 'Android Studio',
+  { name: 'Sam Fire', students: 'Sanjay · Vishwaijeth', tech: 'Android Studio', grad: 'linear-gradient(160deg,#37474f,#000000)', game: true,
     desc: 'An action-packed mobile game built end-to-end in Android Studio.', icon: 'assets/student/samfire.png' },
-  { name: 'Iron & Crown', students: 'Surya', tech: 'Android Studio',
+  { name: 'Iron & Crown', students: 'Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#8d6e63,#3e2723)', game: true,
     desc: 'A fantasy strategy game of kingdoms, battles and crowns.', icon: 'assets/student/sl.png' },
-  { name: 'Expense Tracker', students: 'Bhuvi · Pragathi', tech: 'Android Studio',
+  { name: 'Expense Tracker', students: 'Bhuvi · Pragathi', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26a69a,#00695c)',
     desc: 'Track daily spending, set budgets and see where the money goes.', glyph: '💰' },
-  { name: 'Calculation App', students: 'Israel Paul Akash', tech: 'Android Studio',
+  { name: 'Calculation App', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#0891b2,#164e63)',
     desc: 'A clean calculator app for quick everyday math.', glyph: '🔢' },
-  { name: 'Book Review', students: 'Israel Paul Akash', tech: 'Android Studio',
+  { name: 'Book Review', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ffa726,#ef6c00)',
     desc: 'Browse books and share ratings & reviews with other readers.', glyph: '📚' },
-  { name: 'HomeView 3D', students: 'Bharathram · Kishan', tech: 'Android Studio',
+  { name: 'HomeView 3D', students: 'Bharathram · Kishan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26c6da,#00838f)',
     desc: '3D home & interior visualization for exploring room layouts.', glyph: '🏠' },
-  { name: 'Crop AI', students: 'Ugesh · Surya', tech: 'Android Studio',
+  { name: 'Crop AI', students: 'Ugesh · Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#66bb6a,#2e7d32)',
     desc: 'AI-assisted crop guidance to help farmers improve yield.', glyph: '🌱' },
-  { name: 'Activity Tracker', students: 'Priyan', tech: 'Android Studio',
+  { name: 'Activity Tracker', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ff7043,#d84315)',
     desc: 'Logs daily activities and habits to keep users on track.', glyph: '🏃' },
-  { name: 'Pet Care', students: 'Sharu · Mohana Priya', tech: 'Android Studio',
+  { name: 'Pet Care', students: 'Sharu · Mohana Priya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ec407a,#ad1457)',
     desc: 'Manage pet feeding, health records and reminders in one place.', glyph: '🐾' },
 ];
+
+/* Reconstructed mini app-screens (based on each project's real layout XML) */
+const spBar = (t = '9:41') => `<div class="sp-status"><span>${t}</span><span class="sp-sig"></span></div>`;
+const spKeys = arr => arr.map(k => `<span class="k${'=+-*/'.includes(k) || k === '×' || k === '÷' ? ' op' : ''}${k === '=' ? ' eq' : ''}">${k}</span>`).join('');
+
+const SCREENS = {
+  'Calculation App': p => `${spBar()}<div class="sc calc"><div class="calc-head">CALCULATOR</div><div class="calc-disp">78 × 9<b>702</b></div><div class="calc-grid">${spKeys(['C','(',')','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','00','.','='])}</div></div>`,
+  'Expense Tracker': p => `${spBar()}<div class="sc" style="background:#0b3d34"><div class="sc-h">Monthly Budget</div><div class="ex-card"><div><small>Total Spent</small><b>₹4,200</b></div><div><small>Balance</small><b>₹5,800</b></div></div><div class="sc-btn">＋ Add Expense</div><div class="sc-sub">Transaction History</div><div class="row"><span>🍔 Food</span><em>₹320</em></div><div class="row"><span>🚌 Travel</span><em>₹90</em></div><div class="row"><span>📱 Recharge</span><em>₹239</em></div></div>`,
+  'Braille Translator': p => `${spBar()}<div class="sc" style="background:#1a237e"><div class="sc-h">Braille Translator</div><div class="br-in">Text to translate…</div><div class="br-dots">${'⠓⠑⠇⠇⠕'.split('').map(d=>`<b>${d}</b>`).join('')}</div><div class="sc-sub" style="color:#c5cae9">Vibration Speed</div><div class="br-slider"><i></i></div><div class="sc-btn" style="background:#3949ab">Start Vibration</div><div class="br-row"><span>🔊 Speak</span><span>📳 Vibrate</span></div></div>`,
+  'Blood Donor App': p => `${spBar()}<div class="sc bd"><div class="bd-hero"><b>Donate blood,<br>save lives</b><small>One donation saves up to 3 lives</small></div><div class="bd-stats"><div><b>4.5M</b><small>need yearly</small></div><div><b>38K</b><small>daily</small></div><div><b>1 in 7</b><small>patients</small></div></div><div class="sc-btn" style="background:#e53935">♥ Register as Donor</div></div>`,
+  'App Market': p => `${spBar()}<div class="sc am"><div class="sc-h">Appmarket</div><small class="am-tag">Discover &amp; download popular apps</small><div class="am-grid">${['🛒','📘','📷','▶️','🎵','💬','🗺️','🎮'].map(e=>`<span>${e}</span>`).join('')}</div><div class="sc-btn" style="background:#0277bd">Get Started</div></div>`,
+  'HomeView 3D': p => `${spBar()}<div class="sc hv"><div class="sc-h">HomeView 3D</div><div class="hv-plan"><i style="left:8%;top:12%;width:38%;height:30%"></i><i style="right:8%;top:12%;width:34%;height:44%"></i><i style="left:8%;bottom:10%;width:50%;height:34%;background:#26c6da"></i></div><small class="hv-hint">Tap floor plan to place furniture</small><div class="sc-btn" style="background:#00838f">🗑 Clear Room</div></div>`,
+  'Crop AI': p => `${spBar()}<div class="sc ai"><div class="sc-h">Crop AI 🌱</div><div class="ai-bot">Welcome! Ask me anything about crops.</div><div class="ai-me">Why are my tomato leaves yellow?</div><div class="ai-bot">Likely nitrogen deficiency — try…</div><div class="ai-input"><span>Ask about your crops…</span><em>Send</em></div></div>`,
+  'Book Review': p => `${spBar()}<div class="sc" style="background:#4e342e"><div class="sc-h">Book Review</div>${[['Atomic Habits','★★★★★'],['The Alchemist','★★★★☆'],['Wings of Fire','★★★★★']].map(b=>`<div class="bk"><span class="bk-c"></span><div><b>${b[0]}</b><em>${b[1]}</em></div></div>`).join('')}</div>`,
+  'Activity Tracker': p => `${spBar()}<div class="sc at"><div class="sc-h">Activity Tracker</div><div class="at-ring"><b>8,240</b><small>steps</small></div><div class="row"><span>🔥 Calories</span><em>412 kcal</em></div><div class="row"><span>🏃 Distance</span><em>5.8 km</em></div><div class="row"><span>⏱ Active</span><em>64 min</em></div></div>`,
+  'Pet Care': p => `${spBar()}<div class="sc pc"><div class="sc-h">Pet Care</div><div class="pc-pet">🐕<div><b>Bruno</b><small>Golden Retriever · 3y</small></div></div><div class="sc-sub" style="color:#f8bbd0">Reminders</div><div class="row"><span>🍖 Feed</span><em>8:00 AM</em></div><div class="row"><span>💊 Vitamin</span><em>2:00 PM</em></div><div class="row"><span>🩺 Vet visit</span><em>Sat</em></div></div>`,
+};
 
 const renderStudentProjects = () => {
   const g = document.getElementById('studentGrid');
   if (!g) return;
-  g.innerHTML = STUDENT_PROJECTS.map((p, i) => `
+  g.innerHTML = STUDENT_PROJECTS.map((p, i) => {
+    let screen;
+    if (p.screenshot) {
+      screen = `<img class="sp-shot" src="${p.screenshot}" alt="${p.name} screen" loading="lazy">`;
+    } else if (p.game) {
+      screen = `<div class="sp-game"><img src="${p.icon}" alt="" loading="lazy"><span class="sp-game-t">${p.name}</span><span class="sp-play">▶</span></div>`;
+    } else if (SCREENS[p.name]) {
+      screen = `<div class="sp-ui" style="--g:${p.grad}">${SCREENS[p.name](p)}</div>`;
+    } else {
+      screen = `<div class="sp-app" style="background:${p.grad}"><div class="sp-app-icon">${p.icon ? `<img src="${p.icon}" alt="">` : `<span>${p.glyph||'📱'}</span>`}</div><div class="sp-app-title">${p.name}</div></div>`;
+    }
+    return `
     <article class="glass student-card reveal-scale" style="--d:${(i % 4) * 0.06}s">
-      <div class="sp-icon${p.icon ? ' has-img' : ''}">
-        ${p.icon
-          ? `<img src="${p.icon}" alt="${p.name} icon" loading="lazy" onerror="this.parentElement.classList.remove('has-img');this.parentElement.textContent='📱'">`
-          : `<span>${p.glyph || '📱'}</span>`}
+      <div class="sp-phone">
+        <span class="sp-phone-cam" aria-hidden="true"></span>
+        <div class="sp-screen">${screen}</div>
       </div>
       <div class="sp-body">
         <h3 class="sp-name">${p.name}</h3>
@@ -505,7 +532,8 @@ const renderStudentProjects = () => {
         <p class="sp-desc">${p.desc}</p>
         <span class="sp-tech">${p.tech}</span>
       </div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
 
   const io = new IntersectionObserver(es => {
     es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
