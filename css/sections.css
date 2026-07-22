@@ -951,3 +951,55 @@ a.c-row .v, .c-row a.v { border-bottom: 1px solid rgba(8, 145, 178, 0.3); transi
 .ac-approve:hover { box-shadow: 0 8px 20px rgba(8, 145, 178, 0.3); }
 .ac-hide:hover { border-color: var(--accent); color: var(--accent); }
 .ac-del:hover { border-color: #e53935; color: #e53935; }
+
+/* ═══════════════════════════════════════════
+   STUDENT PROJECTS
+   ═══════════════════════════════════════════ */
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+  margin-top: 56px;
+}
+.student-card {
+  display: flex;
+  gap: 16px;
+  padding: 22px 22px 24px;
+  border-radius: 20px;
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), border-color 0.4s;
+}
+.student-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 20px 44px rgba(8, 145, 178, 0.14);
+}
+.sp-icon {
+  flex: 0 0 58px;
+  width: 58px; height: 58px;
+  display: grid; place-items: center;
+  border-radius: 16px;
+  font-size: 28px;
+  background: var(--grad);
+  box-shadow: 0 8px 18px rgba(8, 145, 178, 0.22);
+  overflow: hidden;
+}
+.sp-icon.has-img { background: #fff; border: 1px solid var(--glass-border); box-shadow: 0 6px 16px rgba(14, 27, 58, 0.1); }
+.sp-icon img { width: 100%; height: 100%; object-fit: cover; }
+.sp-body { flex: 1; min-width: 0; }
+.sp-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+.sp-students {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  color: var(--accent); margin-top: 2px;
+}
+.sp-desc { font-size: 13.5px; line-height: 1.55; color: var(--text-sub); margin: 8px 0 12px; }
+.sp-tech {
+  display: inline-block;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  color: var(--text-sub);
+  padding: 4px 11px; border-radius: 20px;
+  background: rgba(8, 145, 178, 0.08);
+  border: 1px solid var(--glass-border);
+}
+@media (max-width: 600px) {
+  .student-grid { grid-template-columns: 1fr; }
+}

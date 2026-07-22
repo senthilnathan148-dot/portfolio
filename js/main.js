@@ -461,6 +461,58 @@ const projectArt = kind => {
   return `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">${defs}${art[kind]}</svg>`;
 };
 
+/* ═══ 10x · STUDENT PROJECTS (Android apps built by my students) ═══ */
+const STUDENT_PROJECTS = [
+  { name: 'Blood Donor App', students: 'ICE Batch', tech: 'Android Studio',
+    desc: 'Connects blood donors with people in urgent need nearby.', icon: 'assets/student/blood.png' },
+  { name: 'Braille Translator', students: 'Priyan', tech: 'Android Studio',
+    desc: 'Converts typed text into Braille to support visually-impaired users.', icon: 'assets/student/braille.png' },
+  { name: 'App Market', students: 'Tarun · Cova', tech: 'Android Studio',
+    desc: 'An app-marketplace concept for browsing and downloading apps.', icon: 'assets/student/appmarket.png' },
+  { name: 'Sam Fire', students: 'Sanjay · Vishwaijeth', tech: 'Android Studio',
+    desc: 'An action-packed mobile game built end-to-end in Android Studio.', icon: 'assets/student/samfire.png' },
+  { name: 'Iron & Crown', students: 'Surya', tech: 'Android Studio',
+    desc: 'A fantasy strategy game of kingdoms, battles and crowns.', icon: 'assets/student/sl.png' },
+  { name: 'Expense Tracker', students: 'Bhuvi · Pragathi', tech: 'Android Studio',
+    desc: 'Track daily spending, set budgets and see where the money goes.', glyph: '💰' },
+  { name: 'Calculation App', students: 'Israel Paul Akash', tech: 'Android Studio',
+    desc: 'A clean calculator app for quick everyday math.', glyph: '🔢' },
+  { name: 'Book Review', students: 'Israel Paul Akash', tech: 'Android Studio',
+    desc: 'Browse books and share ratings & reviews with other readers.', glyph: '📚' },
+  { name: 'HomeView 3D', students: 'Bharathram · Kishan', tech: 'Android Studio',
+    desc: '3D home & interior visualization for exploring room layouts.', glyph: '🏠' },
+  { name: 'Crop AI', students: 'Ugesh · Surya', tech: 'Android Studio',
+    desc: 'AI-assisted crop guidance to help farmers improve yield.', glyph: '🌱' },
+  { name: 'Activity Tracker', students: 'Priyan', tech: 'Android Studio',
+    desc: 'Logs daily activities and habits to keep users on track.', glyph: '🏃' },
+  { name: 'Pet Care', students: 'Sharu · Mohana Priya', tech: 'Android Studio',
+    desc: 'Manage pet feeding, health records and reminders in one place.', glyph: '🐾' },
+];
+
+const renderStudentProjects = () => {
+  const g = document.getElementById('studentGrid');
+  if (!g) return;
+  g.innerHTML = STUDENT_PROJECTS.map((p, i) => `
+    <article class="glass student-card reveal-scale" style="--d:${(i % 4) * 0.06}s">
+      <div class="sp-icon${p.icon ? ' has-img' : ''}">
+        ${p.icon
+          ? `<img src="${p.icon}" alt="${p.name} icon" loading="lazy" onerror="this.parentElement.classList.remove('has-img');this.parentElement.textContent='📱'">`
+          : `<span>${p.glyph || '📱'}</span>`}
+      </div>
+      <div class="sp-body">
+        <h3 class="sp-name">${p.name}</h3>
+        <p class="sp-students">${p.students}</p>
+        <p class="sp-desc">${p.desc}</p>
+        <span class="sp-tech">${p.tech}</span>
+      </div>
+    </article>`).join('');
+
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  g.querySelectorAll('.reveal-scale').forEach(el => io.observe(el));
+};
+
 const renderProjects = () => {
   const _g = document.getElementById('projectsGrid');
   if (!_g) return;
@@ -817,6 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCerts();
   renderProjects();
   renderProjectVideos();
+  renderStudentProjects();
   renderTrainingPhotos();
   initParticles();
   initCursor();
