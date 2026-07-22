@@ -490,20 +490,28 @@ const STUDENT_PROJECTS = [
 ];
 
 /* Reconstructed mini app-screens (based on each project's real layout XML) */
-const spBar = (t = '9:41') => `<div class="sp-status"><span>${t}</span><span class="sp-sig"></span></div>`;
+const spBar = (color = '#fff', t = '9:41') => `<div class="sp-status" style="color:${color}"><span>${t}</span><span class="sp-sig" style="background:${color === '#fff' ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.35)'}"></span></div>`;
 const spKeys = arr => arr.map(k => `<span class="k${'=+-*/'.includes(k) || k === '×' || k === '÷' ? ' op' : ''}${k === '=' ? ' eq' : ''}">${k}</span>`).join('');
 
+// Screens rebuilt to match each app's REAL colors & layout (from its XML), with live animation
 const SCREENS = {
-  'Calculation App': p => `${spBar()}<div class="sc calc"><div class="calc-head">CALCULATOR</div><div class="calc-disp">78 × 9<b>702</b></div><div class="calc-grid">${spKeys(['C','(',')','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','00','.','='])}</div></div>`,
-  'Expense Tracker': p => `${spBar()}<div class="sc" style="background:#0b3d34"><div class="sc-h">Monthly Budget</div><div class="ex-card"><div><small>Total Spent</small><b>₹4,200</b></div><div><small>Balance</small><b>₹5,800</b></div></div><div class="sc-btn">＋ Add Expense</div><div class="sc-sub">Transaction History</div><div class="row"><span>🍔 Food</span><em>₹320</em></div><div class="row"><span>🚌 Travel</span><em>₹90</em></div><div class="row"><span>📱 Recharge</span><em>₹239</em></div></div>`,
-  'Braille Translator': p => `${spBar()}<div class="sc" style="background:#1a237e"><div class="sc-h">Braille Translator</div><div class="br-in">Text to translate…</div><div class="br-dots">${'⠓⠑⠇⠇⠕'.split('').map(d=>`<b>${d}</b>`).join('')}</div><div class="sc-sub" style="color:#c5cae9">Vibration Speed</div><div class="br-slider"><i></i></div><div class="sc-btn" style="background:#3949ab">Start Vibration</div><div class="br-row"><span>🔊 Speak</span><span>📳 Vibrate</span></div></div>`,
-  'Blood Donor App': p => `${spBar()}<div class="sc bd"><div class="bd-hero"><b>Donate blood,<br>save lives</b><small>One donation saves up to 3 lives</small></div><div class="bd-stats"><div><b>4.5M</b><small>need yearly</small></div><div><b>38K</b><small>daily</small></div><div><b>1 in 7</b><small>patients</small></div></div><div class="sc-btn" style="background:#e53935">♥ Register as Donor</div></div>`,
-  'App Market': p => `${spBar()}<div class="sc am"><div class="sc-h">Appmarket</div><small class="am-tag">Discover &amp; download popular apps</small><div class="am-grid">${['🛒','📘','📷','▶️','🎵','💬','🗺️','🎮'].map(e=>`<span>${e}</span>`).join('')}</div><div class="sc-btn" style="background:#0277bd">Get Started</div></div>`,
-  'HomeView 3D': p => `${spBar()}<div class="sc hv"><div class="sc-h">HomeView 3D</div><div class="hv-plan"><i style="left:8%;top:12%;width:38%;height:30%"></i><i style="right:8%;top:12%;width:34%;height:44%"></i><i style="left:8%;bottom:10%;width:50%;height:34%;background:#26c6da"></i></div><small class="hv-hint">Tap floor plan to place furniture</small><div class="sc-btn" style="background:#00838f">🗑 Clear Room</div></div>`,
-  'Crop AI': p => `${spBar()}<div class="sc ai"><div class="sc-h">Crop AI 🌱</div><div class="ai-bot">Welcome! Ask me anything about crops.</div><div class="ai-me">Why are my tomato leaves yellow?</div><div class="ai-bot">Likely nitrogen deficiency — try…</div><div class="ai-input"><span>Ask about your crops…</span><em>Send</em></div></div>`,
-  'Book Review': p => `${spBar()}<div class="sc" style="background:#4e342e"><div class="sc-h">Book Review</div>${[['Atomic Habits','★★★★★'],['The Alchemist','★★★★☆'],['Wings of Fire','★★★★★']].map(b=>`<div class="bk"><span class="bk-c"></span><div><b>${b[0]}</b><em>${b[1]}</em></div></div>`).join('')}</div>`,
-  'Activity Tracker': p => `${spBar()}<div class="sc at"><div class="sc-h">Activity Tracker</div><div class="at-ring"><b>8,240</b><small>steps</small></div><div class="row"><span>🔥 Calories</span><em>412 kcal</em></div><div class="row"><span>🏃 Distance</span><em>5.8 km</em></div><div class="row"><span>⏱ Active</span><em>64 min</em></div></div>`,
-  'Pet Care': p => `${spBar()}<div class="sc pc"><div class="sc-h">Pet Care</div><div class="pc-pet">🐕<div><b>Bruno</b><small>Golden Retriever · 3y</small></div></div><div class="sc-sub" style="color:#f8bbd0">Reminders</div><div class="row"><span>🍖 Feed</span><em>8:00 AM</em></div><div class="row"><span>💊 Vitamin</span><em>2:00 PM</em></div><div class="row"><span>🩺 Vet visit</span><em>Sat</em></div></div>`,
+  // light theme · gray #A4A3A3 buttons · red #D30606 accent
+  'Calculation App': p => `${spBar('#333')}<div class="sc calc"><div class="calc-head">CALCULATOR APP</div><div class="calc-disp"><span>78 × 9</span><b class="count" data-to="702">0</b></div><div class="calc-grid">${spKeys(['C','(',')','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','00','.','='])}</div></div>`,
+  // Material light · green #2E7D32 toolbar · white cards · bg #F4F7F6
+  'Expense Tracker': p => `${spBar('#fff')}<div class="sc ex"><div class="ex-top">Expense Tracker</div><div class="ex-body"><div class="ex-card"><small>Monthly Budget</small><div class="ex-nums"><div><small>Spent</small><b style="color:#D32F2F">₹<i class="count" data-to="4200">0</i></b></div><div><small>Balance</small><b style="color:#2E7D32">₹<i class="count" data-to="5800">0</i></b></div></div></div><div class="ex-btn">＋ Add Expense</div><small class="ex-h2">Transaction History</small><div class="ex-row"><span>🍔 Food</span><em>−₹320</em></div><div class="ex-row"><span>🚌 Travel</span><em>−₹90</em></div><div class="ex-row"><span>📱 Recharge</span><em>−₹239</em></div></div></div>`,
+  // light #F8F9FA · white surface · blue #2962FF dots (animated) · amber #FFAB00
+  'Braille Translator': p => `${spBar('#333')}<div class="sc br"><div class="br-top">⠿ Braille Translator</div><div class="br-card"><div class="br-in">hello</div><div class="br-dots">${[[1,1,0,1,0,1],[1,0,0,1,1,0],[1,1,1,0,0,0],[1,1,1,0,0,0],[1,0,1,0,1,0]].map((c,ci)=>`<span class="br-cell" style="animation-delay:${ci*0.35}s">${c.map(d=>`<i class="${d?'on':''}"></i>`).join('')}</span>`).join('')}</div><small class="br-lbl">Vibration Speed</small><div class="br-slider"><i></i></div><div class="br-btn">📳 Start Vibration</div></div></div>`,
+  // light #FFF5F5 · pink cards #FCEBEB · dark-red text · ECG + heart animation
+  'Blood Donor App': p => `${spBar('#791F1F')}<div class="sc bd"><div class="bd-card bd-hero"><div><b>Donate blood,<br>save lives</b><small>One donation saves 3 lives</small></div><span class="bd-heart">♥</span></div><div class="bd-ecg"><svg viewBox="0 0 120 30" preserveAspectRatio="none"><polyline class="ecg" points="0,15 20,15 26,15 30,4 36,26 42,15 60,15 66,15 70,6 76,24 82,15 120,15"/></svg></div><div class="bd-stats"><div class="bd-card"><b>4.5M</b><small>need yearly</small></div><div class="bd-card"><b>38K</b><small>daily</small></div><div class="bd-card"><b>1 in 7</b><small>patients</small></div></div><div class="bd-btn">♥ Register as Donor</div></div>`,
+  // dark gradient #2D1B4E→#0A0E21 · navy text on translucent cards
+  'App Market': p => `${spBar('#fff')}<div class="sc am"><span class="am-logo">▲</span><div class="am-h">Appmarket</div><small class="am-tag">Discover and download the world's most popular apps.</small><div class="am-grid">${['🛒','📘','📷','▶️','🎵','💬','🗺️','🎮'].map((e,i)=>`<span style="animation-delay:${i*0.12}s">${e}</span>`).join('')}</div><div class="am-btn">Get Started →</div></div>`,
+  // light #F0F2F5 · navy #1A2332 bar · floor #D4A574 / wall #2C3E50 / ceiling
+  'HomeView 3D': p => `${spBar('#fff')}<div class="sc hv"><div class="hv-top">🏠 HomeView 3D</div><div class="hv-body"><div class="hv-plan"><i class="wall" style="left:6%;top:8%;width:42%;height:26%"></i><i class="ceil" style="right:6%;top:8%;width:36%;height:40%"></i><i class="floor drop" style="left:6%;bottom:8%;width:54%;height:34%"></i><span class="hv-sofa drop2">🛋️</span></div><small class="hv-hint">Tap floor plan to place furniture</small><div class="hv-btn">🗑 Clear Room</div></div></div>`,
+  // green welcome + AI chat (typing animation)
+  'Crop AI': p => `${spBar('#fff')}<div class="sc ai"><div class="ai-top">🌱 Crop AI</div><div class="ai-body"><div class="ai-bot">Welcome! Ask me anything about crops.</div><div class="ai-me">Why are my tomato leaves yellow?</div><div class="ai-bot ai-typing"><i></i><i></i><i></i></div><div class="ai-input"><span>Ask about your crops…</span><em>Send</em></div></div></div>`,
+  'Book Review': p => `${spBar('#fff')}<div class="sc bks"><div class="bk-top">📚 Book Review</div><div class="bk-body">${[['Atomic Habits','★★★★★'],['The Alchemist','★★★★☆'],['Wings of Fire','★★★★★']].map(b=>`<div class="bk"><span class="bk-c"></span><div><b>${b[0]}</b><em>${b[1]}</em></div></div>`).join('')}</div></div>`,
+  'Activity Tracker': p => `${spBar('#fff')}<div class="sc at"><div class="at-top">🏃 Activity</div><div class="at-body"><div class="at-ring"><b class="count" data-to="8240">0</b><small>steps</small></div><div class="at-row"><span>🔥 Calories</span><em>412</em></div><div class="at-row"><span>📍 Distance</span><em>5.8 km</em></div><div class="at-row"><span>⏱ Active</span><em>64 min</em></div></div></div>`,
+  'Pet Care': p => `${spBar('#fff')}<div class="sc pc"><div class="pc-top">🐾 Pet Care</div><div class="pc-body"><div class="pc-pet"><span class="pc-av">🐕</span><div><b>Bruno</b><small>Golden Retriever · 3y</small></div></div><small class="pc-h2">Reminders</small><div class="pc-row"><span>🍖 Feed</span><em>8:00 AM</em></div><div class="pc-row"><span>💊 Vitamin</span><em>2:00 PM</em></div><div class="pc-row"><span>🩺 Vet visit</span><em>Sat</em></div></div></div>`,
 };
 
 const renderStudentProjects = () => {
@@ -536,7 +544,18 @@ const renderStudentProjects = () => {
   }).join('');
 
   const io = new IntersectionObserver(es => {
-    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    es.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('visible');
+      e.target.querySelectorAll('.count').forEach(c => {
+        const to = +c.dataset.to; const t0 = performance.now();
+        const step = now => { const k = Math.min((now - t0) / 1200, 1);
+          c.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString();
+          if (k < 1) requestAnimationFrame(step); };
+        reduceMotion ? (c.textContent = to.toLocaleString()) : requestAnimationFrame(step);
+      });
+      io.unobserve(e.target);
+    });
   }, { threshold: 0.1 });
   g.querySelectorAll('.reveal-scale').forEach(el => io.observe(el));
 };
