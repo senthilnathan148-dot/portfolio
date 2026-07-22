@@ -1,6 +1,13 @@
 node_modules/
 .DS_Store
 
-# Connected source folder — student Android projects (NOT part of the website)
+# Connected source folders — NOT part of the website (huge CAD/photo/video source)
 ICE (2024-2028)/
 icon-montage.png
+
+# CATIA / CAD source folders (raw .tif / .CATPart / .pdf) — only optimized copies in assets/ ship
+Catia_Photos/
+led_bulb/
+Jet_engine/
+Horizontal stream engine/
+Steam_Engine_3_Cylinder/

@@ -364,6 +364,42 @@ const PROJECTS = [
     img: 'assets/clay/teamcar/t20.jpg',
     clay: { dir: 'assets/clay/teamcar/t', count: 24, vids: [] },
   },
+  {
+    kind: 'Mechanical Design · CATIA V5',
+    name: '3-Cylinder Steam Engine',
+    desc: 'A 3-cylinder radial steam engine designed in CATIA V5 — 37 individual parts modelled and assembled into a complete mechanism with pistons, crank and valve gear, then photo-rendered.',
+    tags: ['CATIA V5', 'Assembly Design', 'Solid Modelling', 'Mechanism', 'Rendering'],
+    live: '', git: '',
+    img: 'assets/cad/steam/01.jpg',
+    gallery: ['assets/cad/steam/01.jpg', 'assets/cad/steam/02.jpg', 'assets/cad/steam/03.jpg', 'assets/cad/steam/04.jpg'],
+  },
+  {
+    kind: 'Product Design · CATIA V5',
+    name: 'LED Bulb — Product Model',
+    desc: 'An LED bulb modelled in CATIA V5 — the lens, heat-sink body, driver base and cap built with surface and solid features, then assembled and rendered as a complete product.',
+    tags: ['CATIA V5', 'Surface Modelling', 'Solid Modelling', 'Product Design'],
+    live: '', git: '',
+    img: 'assets/cad/led/01.jpg',
+    gallery: ['assets/cad/led/01.jpg', 'assets/cad/led/02.jpg'],
+  },
+  {
+    kind: 'Mechanical Design · CATIA V5',
+    name: 'Jet Engine — Turbofan',
+    desc: 'A turbofan jet engine modelled in CATIA V5 — fan, compressor and turbine stages, shaft and nacelle designed part-by-part, assembled into a full engine and finished with photo-real rendering.',
+    tags: ['CATIA V5', 'Assembly Design', 'Turbomachinery', 'Rendering'],
+    live: '', git: '',
+    img: 'assets/cad/jet/01.jpg',
+    gallery: ['assets/cad/jet/01.jpg', 'assets/cad/jet/02.jpg', 'assets/cad/jet/03.jpg', 'assets/cad/jet/04.jpg'],
+  },
+  {
+    kind: 'Mechanical Design · CATIA V5',
+    name: 'Horizontal Steam Engine',
+    desc: 'A horizontal steam engine modelled in CATIA V5 — flywheel, cylinder, piston, crank and connecting rod built as individual parts and assembled with mechanical constraints, then rendered.',
+    tags: ['CATIA V5', 'Assembly Design', 'Solid Modelling', 'Mechanism'],
+    live: '', git: '',
+    img: 'assets/cad/eng/01.jpg',
+    gallery: ['assets/cad/eng/01.jpg', 'assets/cad/eng/02.jpg', 'assets/cad/eng/03.jpg'],
+  },
 ];
 
 /* ═══ 8 · RENDER — skills ═══ */
@@ -450,6 +486,26 @@ const projectArt = kind => {
       <circle cx="470" cy="200" r="5" fill="url(#pg-vr)" stroke="none"/>
       <circle cx="170" cy="200" r="5" fill="url(#pg-vr)" stroke="none"/>
     </g><text x="150" y="318" fill="rgba(0,229,255,0.55)" font-family="monospace" font-size="13">WEBXR · DRAG TO ROTATE · ENTER VR</text>`,
+    bulb: `<g fill="none" stroke="url(#pg-bulb)" stroke-width="2.5" stroke-linejoin="round">
+      <path d="M320 92 a80 80 0 0 1 54 138 c-10 10 -17 23 -19 38 h-70 c-2 -15 -9 -28 -19 -38 a80 80 0 0 1 54 -138z"/>
+      <path d="M286 272 h68 M292 288 h56 M300 304 h40"/>
+      <polyline points="298,182 312,162 320,198 328,162 342,182"/>
+      <g opacity="0.5"><path d="M320 92 v-28 M424 176 h26 M216 176 h-26 M250 110 l-20 -20 M390 110 l20 -20"/></g>
+    </g><text x="320" y="342" fill="rgba(0,229,255,0.5)" font-family="monospace" font-size="12.5" text-anchor="middle">CATIA V5 · LED BULB · SURFACE + SOLID</text>`,
+    jet: `<g fill="none" stroke="url(#pg-jet)" stroke-width="2.5" stroke-linejoin="round">
+      <path d="M170 150 h270 l46 22 -46 22 h-270 a34 42 0 0 1 0 -44z"/>
+      <ellipse cx="170" cy="172" rx="16" ry="44"/>
+      <g stroke-width="1.6" opacity="0.75">${Array.from({ length: 12 }, (_, i) => `<line x1="170" y1="172" x2="${(170 + Math.cos(i / 12 * 6.283) * 16).toFixed(1)}" y2="${(172 + Math.sin(i / 12 * 6.283) * 44).toFixed(1)}"/>`).join('')}</g>
+      <path d="M486 150 l40 22 -40 22"/>
+      <path d="M210 160 h240 M210 184 h240" opacity="0.4" stroke-dasharray="4 6"/>
+    </g><text x="320" y="330" fill="rgba(0,229,255,0.5)" font-family="monospace" font-size="12.5" text-anchor="middle">CATIA V5 · TURBOFAN · JET ENGINE</text>`,
+    hengine: `<g fill="none" stroke="url(#pg-hengine)" stroke-width="2.5" stroke-linejoin="round">
+      <circle cx="205" cy="215" r="62"/><circle cx="205" cy="215" r="13"/>
+      <g stroke-width="1.5" opacity="0.6">${Array.from({ length: 8 }, (_, i) => `<line x1="${(205 + Math.cos(i / 8 * 6.283) * 15).toFixed(1)}" y1="${(215 + Math.sin(i / 8 * 6.283) * 15).toFixed(1)}" x2="${(205 + Math.cos(i / 8 * 6.283) * 60).toFixed(1)}" y2="${(215 + Math.sin(i / 8 * 6.283) * 60).toFixed(1)}"/>`).join('')}</g>
+      <rect x="305" y="188" width="158" height="54" rx="7"/>
+      <path d="M267 215 h40 M463 215 h32 M479 200 v30"/>
+      <circle cx="205" cy="215" r="6" fill="url(#pg-hengine)" stroke="none"/>
+    </g><text x="320" y="330" fill="rgba(0,229,255,0.5)" font-family="monospace" font-size="12.5" text-anchor="middle">CATIA V5 · HORIZONTAL STEAM ENGINE</text>`,
     door: `<g fill="none" stroke="url(#pg-door)" stroke-width="2.5">
       <path d="M170 260 L170 130 Q170 95 210 90 L420 78 Q470 76 480 120 L490 260 Z"/>
       <path d="M195 250 L195 140 Q196 112 225 108 L415 98"/>
@@ -593,10 +649,10 @@ const renderProjects = () => {
       GitHub
     </a>` : '';
 
-  const galleryBtn = (p, i) => p.clay ? `
+  const galleryBtn = (p, i) => (p.clay || p.gallery) ? `
     <button class="p-action p-live" type="button" data-clay="${i}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-      View Gallery (${p.clay.count + p.clay.vids.length})
+      View Gallery (${projMedia(p).length})
     </button>` : '';
 
   _g.innerHTML = PROJECTS.map((p, i) => `
@@ -644,11 +700,18 @@ const buildClayBox = () => {
   });
   return box;
 };
+const projMedia = p => {
+  const list = [];
+  if (p.gallery) p.gallery.forEach(g => list.push(
+    typeof g === 'string' ? { type: 'img', src: g } : { type: 'video', src: g.v + '.mp4', poster: g.v + '.jpg' }));
+  if (p.clay) {
+    p.clay.vids.forEach(v => list.push({ type: 'video', src: v + '.mp4', poster: v + '.jpg' }));
+    for (let i = 1; i <= p.clay.count; i++) list.push({ type: 'img', src: `${p.clay.dir}${String(i).padStart(2, '0')}.jpg` });
+  }
+  return list;
+};
 const openClay = p => {
-  const c = p.clay;
-  clayMedia = [];
-  c.vids.forEach(v => clayMedia.push({ type: 'video', src: v + '.mp4', poster: v + '.jpg' }));
-  for (let i = 1; i <= c.count; i++) clayMedia.push({ type: 'img', src: `${c.dir}${String(i).padStart(2, '0')}.jpg` });
+  clayMedia = projMedia(p);
   clayIdx = 0;
   buildClayBox().classList.add('open');
   document.body.style.overflow = 'hidden';
