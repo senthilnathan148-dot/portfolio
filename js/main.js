@@ -346,6 +346,24 @@ const PROJECTS = [
     img: 'assets/project-unreal.jpg',
     art: 'vr',
   },
+  {
+    kind: 'Automotive Design · Clay Modelling',
+    name: 'Q-Trail — Concept Vehicle Clay Model',
+    desc: 'A concept off-road vehicle taken from hand sketch to a fully sculpted, finished clay model. Blocking the volume, refining the surfaces and detailing the wheels and greenhouse by hand — the same industrial clay workflow used in automotive studios for body (BIW) design.',
+    tags: ['Clay Modelling', 'Automotive Design', 'Concept Vehicle', 'Surfacing', 'Hand Sculpting'],
+    live: '', git: '',
+    img: 'assets/clay/qtrail/q10.jpg',
+    clay: { dir: 'assets/clay/qtrail/q', count: 29, vids: ['assets/clay/vids/qv01'] },
+  },
+  {
+    kind: 'Automotive Design · Clay Modelling',
+    name: 'Team Car — Full-Scale Clay Buck',
+    desc: 'A team automotive clay project: setting up the template boards, building the armature and shaping a large-scale car buck together. Shows collaborative studio workflow — measuring, applying clay and scraping the surfaces down to a clean automotive form.',
+    tags: ['Clay Modelling', 'Full-Scale Buck', 'Teamwork', 'Automotive Design', 'Surfacing'],
+    live: '', git: '',
+    img: 'assets/clay/teamcar/t20.jpg',
+    clay: { dir: 'assets/clay/teamcar/t', count: 24, vids: [] },
+  },
 ];
 
 /* ═══ 8 · RENDER — skills ═══ */
@@ -575,12 +593,18 @@ const renderProjects = () => {
       GitHub
     </a>` : '';
 
+  const galleryBtn = (p, i) => p.clay ? `
+    <button class="p-action p-live" type="button" data-clay="${i}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+      View Gallery (${p.clay.count + p.clay.vids.length})
+    </button>` : '';
+
   _g.innerHTML = PROJECTS.map((p, i) => `
     <article class="glass project-card reveal-scale" style="--d:${(i % 2) * 0.1}s">
       <div class="project-media">
         ${projectArt(p.art)}
         ${p.img ? `<img src="${p.img}" alt="${p.name} screenshot" loading="lazy" class="project-shot" onerror="this.remove()">` : ''}
-        ${(liveBtn(p) || gitBtn(p)) ? `<div class="project-overlay">${liveBtn(p)}${gitBtn(p)}</div>` : ''}
+        ${(liveBtn(p) || gitBtn(p) || galleryBtn(p, i)) ? `<div class="project-overlay">${liveBtn(p)}${gitBtn(p)}${galleryBtn(p, i)}</div>` : ''}
       </div>
       <div class="project-body">
         <span class="project-kind">${p.kind}</span>
@@ -589,6 +613,60 @@ const renderProjects = () => {
         <div class="project-tags">${p.tags.map(t => `<span class="p-tag">${t}</span>`).join('')}</div>
       </div>
     </article>`).join('');
+
+  _g.querySelectorAll('[data-clay]').forEach(b => b.addEventListener('click', () => openClay(PROJECTS[+b.dataset.clay])));
+};
+
+/* ═══ clay project gallery lightbox ═══ */
+let clayMedia = [], clayIdx = 0;
+const buildClayBox = () => {
+  let box = document.getElementById('clayBox');
+  if (box) return box;
+  box = document.createElement('div');
+  box.id = 'clayBox';
+  box.className = 'clay-box';
+  box.innerHTML = `
+    <button class="clay-close" type="button" aria-label="Close">✕</button>
+    <button class="clay-nav clay-prev" type="button" aria-label="Previous">‹</button>
+    <button class="clay-nav clay-next" type="button" aria-label="Next">›</button>
+    <div class="clay-stage" id="clayStage"></div>
+    <div class="clay-count" id="clayCount"></div>`;
+  document.body.appendChild(box);
+  box.querySelector('.clay-close').onclick = closeClay;
+  box.querySelector('.clay-prev').onclick = () => stepClay(-1);
+  box.querySelector('.clay-next').onclick = () => stepClay(1);
+  box.addEventListener('click', e => { if (e.target === box) closeClay(); });
+  document.addEventListener('keydown', e => {
+    if (!box.classList.contains('open')) return;
+    if (e.key === 'Escape') closeClay();
+    if (e.key === 'ArrowLeft') stepClay(-1);
+    if (e.key === 'ArrowRight') stepClay(1);
+  });
+  return box;
+};
+const openClay = p => {
+  const c = p.clay;
+  clayMedia = [];
+  c.vids.forEach(v => clayMedia.push({ type: 'video', src: v + '.mp4', poster: v + '.jpg' }));
+  for (let i = 1; i <= c.count; i++) clayMedia.push({ type: 'img', src: `${c.dir}${String(i).padStart(2, '0')}.jpg` });
+  clayIdx = 0;
+  buildClayBox().classList.add('open');
+  document.body.style.overflow = 'hidden';
+  showClay();
+};
+const showClay = () => {
+  const m = clayMedia[clayIdx];
+  document.getElementById('clayStage').innerHTML = m.type === 'video'
+    ? `<video src="${m.src}" poster="${m.poster}" controls autoplay playsinline></video>`
+    : `<img src="${m.src}" alt="Clay model photo">`;
+  document.getElementById('clayCount').textContent = `${clayIdx + 1} / ${clayMedia.length}`;
+};
+const stepClay = d => { clayIdx = (clayIdx + d + clayMedia.length) % clayMedia.length; showClay(); };
+const closeClay = () => {
+  const box = document.getElementById('clayBox');
+  if (box) box.classList.remove('open');
+  document.getElementById('clayStage').innerHTML = '';
+  document.body.style.overflow = '';
 };
 
 /* ═══ 10b · PROJECT DEMO VIDEOS (muted, autoplay in view) ═══ */
