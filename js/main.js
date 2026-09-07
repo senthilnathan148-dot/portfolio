@@ -535,32 +535,143 @@ const projectArt = kind => {
   return `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">${defs}${art[kind]}</svg>`;
 };
 
-/* ═══ 10x · STUDENT PROJECTS (Android apps built by my students) ═══ */
+/* ═══ 10x · STUDENT PROJECTS (grouped by course/category) ═══ */
+/* Each project now carries a `cat` key matching one of CATEGORIES below.
+   To add a new course's projects, just add objects with that cat id —
+   the tab + grid render themselves automatically. */
+const CATEGORIES = [
+  { id: 'android',    label: 'Android Programming', logo: 'https://img.icons8.com/?size=100&id=17836&format=png&color=000000', glyph: '📱' },
+  { id: 'catia',      label: 'CATIA',                logo: 'https://img.icons8.com/?size=100&id=6LuKZMwS6lAo&format=png&color=000000', glyph: '⚙️' },
+  { id: 'solidworks', label: 'SolidWorks',           logo: 'https://img.icons8.com/?size=100&id=62397&format=png&color=000000', glyph: '🛠️' },
+  { id: 'ccna',       label: 'CCNA',                 logo: 'https://img.icons8.com/color/96/cisco.png', glyph: '🌐' },
+  { id: 'photoshop',  label: 'Photoshop',            logo: 'https://img.icons8.com/?size=100&id=13677&format=png&color=000000', glyph: '🎨',
+    note: 'Practice work made purely to learn Photoshop skills — not for commercial use, and not made to promote or endorse any brand, product, celebrity or organisation shown.' },
+  { id: 'iot',        label: 'IoT',                  logo: 'https://img.icons8.com/color/96/iot-sensor.png', glyph: '📡' },
+];
+
 const STUDENT_PROJECTS = [
-  { name: 'Blood Donor App', students: 'ICE Batch', tech: 'Android Studio', grad: 'linear-gradient(160deg,#e53935,#b71c1c)',
+  { cat: 'android', name: 'Blood Donor App', students: 'ICE Batch', tech: 'Android Studio', grad: 'linear-gradient(160deg,#e53935,#b71c1c)',
     desc: 'Connects blood donors with people in urgent need nearby.', icon: 'assets/student/blood.png' },
-  { name: 'Braille Translator', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#5c6bc0,#303f9f)',
+  { cat: 'android', name: 'Braille Translator', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#5c6bc0,#303f9f)',
     desc: 'Converts typed text into Braille to support visually-impaired users.', icon: 'assets/student/braille.png' },
-  { name: 'App Market', students: 'Tarun · Cova', tech: 'Android Studio', grad: 'linear-gradient(160deg,#29b6f6,#0277bd)',
+  { cat: 'android', name: 'App Market', students: 'Tarun · Cova', tech: 'Android Studio', grad: 'linear-gradient(160deg,#29b6f6,#0277bd)',
     desc: 'An app-marketplace concept for browsing and downloading apps.', icon: 'assets/student/appmarket.png' },
-  { name: 'Sam Fire', students: 'Sanjay · Vishwaijeth', tech: 'Android Studio', grad: 'linear-gradient(160deg,#37474f,#000000)', game: true,
+  { cat: 'android', name: 'Sam Fire', students: 'Sanjay · Vishwaijeth', tech: 'Android Studio', grad: 'linear-gradient(160deg,#37474f,#000000)', game: true,
     desc: 'An action-packed mobile game built end-to-end in Android Studio.', icon: 'assets/student/samfire.png' },
-  { name: 'Iron & Crown', students: 'Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#8d6e63,#3e2723)', game: true,
+  { cat: 'android', name: 'Iron & Crown', students: 'Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#8d6e63,#3e2723)', game: true,
     desc: 'A fantasy strategy game of kingdoms, battles and crowns.', icon: 'assets/student/sl.png' },
-  { name: 'Expense Tracker', students: 'Bhuvi · Pragathi', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26a69a,#00695c)',
+  { cat: 'android', name: 'Expense Tracker', students: 'Bhuvi · Pragathi', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26a69a,#00695c)',
     desc: 'Track daily spending, set budgets and see where the money goes.', glyph: '💰' },
-  { name: 'Calculation App', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#0891b2,#164e63)',
+  { cat: 'android', name: 'Calculation App', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#0891b2,#164e63)',
     desc: 'A clean calculator app for quick everyday math.', glyph: '🔢' },
-  { name: 'Book Review', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ffa726,#ef6c00)',
+  { cat: 'android', name: 'Book Review', students: 'Israel Paul Akash', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ffa726,#ef6c00)',
     desc: 'Browse books and share ratings & reviews with other readers.', glyph: '📚' },
-  { name: 'HomeView 3D', students: 'Bharathram · Kishan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26c6da,#00838f)',
+  { cat: 'android', name: 'HomeView 3D', students: 'Bharathram · Kishan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#26c6da,#00838f)',
     desc: '3D home & interior visualization for exploring room layouts.', glyph: '🏠' },
-  { name: 'Crop AI', students: 'Ugesh · Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#66bb6a,#2e7d32)',
+  { cat: 'android', name: 'Crop AI', students: 'Ugesh · Surya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#66bb6a,#2e7d32)',
     desc: 'AI-assisted crop guidance to help farmers improve yield.', glyph: '🌱' },
-  { name: 'Activity Tracker', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ff7043,#d84315)',
+  { cat: 'android', name: 'Activity Tracker', students: 'Priyan', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ff7043,#d84315)',
     desc: 'Logs daily activities and habits to keep users on track.', glyph: '🏃' },
-  { name: 'Pet Care', students: 'Sharu · Mohana Priya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ec407a,#ad1457)',
+  { cat: 'android', name: 'Pet Care', students: 'Sharu · Mohana Priya', tech: 'Android Studio', grad: 'linear-gradient(160deg,#ec407a,#ad1457)',
     desc: 'Manage pet feeding, health records and reminders in one place.', glyph: '🐾' },
+
+  /* CATIA / SolidWorks / Photoshop — add new project objects here
+     with the matching cat id, same shape as above, e.g.:
+     { cat: 'catia', name: '...', students: '...', tech: 'CATIA V5', grad: '...', desc: '...', glyph: '⚙️' }, */
+
+  { cat: 'iot', name: 'Spacecraft Life-Support Simulator', students: 'Kanishka S',
+    tech: 'Arduino UNO · Tinkercad · TMP36 · MQ-2 · LDR',
+    desc: 'A multi-parameter environmental monitoring prototype simulating a spacecraft cabin — temperature, gas and light sensors feed an LCD, LED/buzzer alarms and an SG90 servo "hatch" that reacts automatically to unsafe readings.',
+    render: 'assets/student/iot/kanishka-spacecraft-circuit.png',
+    doc: 'assets/student/iot/kanishka-spacecraft-documentation.pdf' },
+  { cat: 'iot', name: 'IoT Home Security & Automation', students: 'Thaffin Ahmed H',
+    tech: 'ESP8266 · Android Studio · HC-SR04',
+    desc: 'A WiFi-connected home security system pairing an ESP8266 with a custom Android app — ultrasonic object detection, live distance readings, and remote LED/buzzer control with automatic reconnection.',
+    render: 'assets/student/iot/thaffin-home-automation-circuit.png',
+    docs: [{ label: 'View documentation', href: 'assets/student/iot/thaffin-home-automation-documentation.docx' }] },
+  { cat: 'iot', name: 'Heart Rate Monitor (Arduino)', students: 'Theershitha S',
+    tech: 'Arduino UNO · Tinkercad · Pulse Sensor',
+    desc: 'A simulated heart-rate monitor built and tested in Tinkercad — a pulse sensor feeds the Arduino, which detects beat peaks and calculates BPM for display, demonstrating basic biomedical sensing.',
+    video: 'assets/student/iot/theershitha-heart-rate.mp4', poster: 'assets/student/iot/theershitha-heart-rate.jpg',
+    docs: [
+      { label: 'View project report', href: 'assets/student/iot/theershitha-heart-rate-report.pdf' },
+      { label: 'View Arduino code', href: 'assets/student/iot/theershitha-heart-rate-code.pdf' }
+    ] },
+
+  { cat: 'ccna', name: 'Airport Network Design Using VLANs', students: 'Subasri S',
+    tech: 'Cisco Packet Tracer · VLANs & Inter-VLAN Routing',
+    desc: 'An airport network built with VLAN segmentation across Check-In, Security, Boarding, Baggage, Admin and Servers departments, with trunk links and inter-VLAN routing for controlled communication.',
+    video: 'assets/student/ccna/airport-network.mp4', poster: 'assets/student/ccna/airport-network.jpg',
+    doc: 'assets/student/ccna/airport-network-documentation.pdf' },
+  { cat: 'ccna', name: 'School Network Project', students: 'Srimadhi A',
+    tech: 'Cisco Packet Tracer · Network Design',
+    desc: 'A school campus network designed and configured in Packet Tracer, connecting classrooms, labs and admin blocks with routers and switches for reliable, organised communication.',
+    video: 'assets/student/ccna/school-network.mp4', poster: 'assets/student/ccna/school-network.jpg',
+    doc: 'assets/student/ccna/school-network-documentation.docx' },
+
+  { cat: 'catia', name: '1-Cyl Horizontal Steam Engine', students: 'Veerapaneni Dwijesh · Aruna K · Jai Sree Satya · Srithan · Nikhilesh · Shivam Chirag · Shreyash Mishra',
+    tech: 'CATIA V5 · Assembly Design', desc: 'A single-cylinder horizontal steam engine — flywheel, cylinder, piston and crank mechanism modelled part-by-part and assembled as a team.',
+    render: 'assets/student/catia/steam-engine-team.png' },
+  { cat: 'catia', name: 'Machine Vice', students: 'Sushvinth',
+    tech: 'CATIA V5 · Assembly Design', desc: 'A bench machine vice modelled and assembled in CATIA V5 — jaw, spindle, handle and base built as individual parts and constrained into a working mechanism.',
+    render: 'assets/student/catia/sushvinth.png' },
+  { cat: 'catia', name: 'Pulley Support', students: 'Devan K',
+    tech: 'CATIA V5 · Part Design', desc: 'A pulley-and-bracket assembly — grooved pulley, hex shaft and an L-shaped support bracket modelled and rendered in CATIA V5.',
+    render: 'assets/student/catia/devan.png' },
+  { cat: 'catia', name: 'Shaft Bracket', students: 'Vijay Adithya',
+    tech: 'CATIA V5 · Part Design', desc: 'A stepped shaft-and-bracket component with a bored cylindrical boss, modelled with sketch-based and dress-up features in CATIA V5.',
+    render: 'assets/student/catia/vijay.png' },
+  { cat: 'catia', name: 'Mounting Bracket — Part 1', students: 'Bhuvanesh',
+    tech: 'CATIA V5 · Part Design', desc: 'An L-shaped mounting bracket with twin bosses and a slotted base, modelled from orthographic views into a finished 3D part.',
+    render: 'assets/student/catia/bhuvanesh.png' },
+  { cat: 'catia', name: 'CATIA V5 — 3D Tutorial Block', students: 'Tamiliniyan',
+    tech: 'CATIA V5 · Sketcher & Part Design', desc: 'A foundational multi-step block exercise practising extrudes and Sketcher constraints — the building blocks before moving on to full assemblies.',
+    render: 'assets/student/catia/tamiliniyan.png' },
+
+  /* Photoshop — poster / photo-manipulation practice.
+     These are student practice pieces made purely to learn Photoshop
+     techniques (compositing, typography, colour grading). They are not
+     commercial work and are not made to promote, endorse or advertise
+     any brand, product, celebrity or organisation shown or referenced. */
+  { cat: 'photoshop', name: 'College Admission Poster — Double Exposure', students: 'Abinaya I',
+    tech: 'Photoshop · Compositing', desc: 'A double-exposure admission poster blending a campus building into a walking silhouette, practising layer masks and blend modes.',
+    render: 'assets/student/photoshop/abinaya-admission.jpg', poster: true },
+  { cat: 'photoshop', name: 'Sports Tribute Poster', students: 'Dharshini S',
+    tech: 'Photoshop · Photo Collage', desc: 'A multi-panel cricket tribute poster practising cut-outs, panel layout and bold sports-editorial typography.',
+    render: 'assets/student/photoshop/dharshini-kohli.jpg', poster: true },
+  { cat: 'photoshop', name: 'Product Ad Poster — Rolls-Royce', students: 'Kavya S',
+    tech: 'Photoshop · Ad Design', desc: 'A luxury automobile ad layout practising ghosted background imagery, spec callouts and premium typography.',
+    render: 'assets/student/photoshop/kavya-rollsroyce.jpg', poster: true },
+  { cat: 'photoshop', name: 'Aesthetic Mood-Board Poster', students: 'Kruthikaa Sree K',
+    tech: 'Photoshop · Digital Collage', desc: 'A layered social-media-style mood board practising grunge textures, mixed typography and UI-sticker overlays.',
+    render: 'assets/student/photoshop/kruthikaa-mafiacore.jpg', poster: true },
+  { cat: 'photoshop', name: 'Sports Tribute Poster — Cut-out Collage', students: 'Pavithra',
+    tech: 'Photoshop · Photo Collage', desc: 'A cricket fan-poster practising precise cut-outs, layering multiple action shots into one dynamic composition.',
+    render: 'assets/student/photoshop/pavithra-kohli.jpg', poster: true },
+  { cat: 'photoshop', name: 'Lyric Poster — Duotone Portrait', students: 'Vimala M',
+    tech: 'Photoshop · Typography', desc: 'A music lyric poster practising duotone colour grading, die-cut portrait masking and expressive hand-lettered type.',
+    render: 'assets/student/photoshop/vimala-lyricposter.jpg', poster: true },
+  { cat: 'photoshop', name: 'College Admission Poster — Photo Manipulation', students: 'Reena Mary',
+    tech: 'Photoshop · Compositing', desc: 'A campus-building photo manipulation practising perspective blending, drop shadows and layered architecture cut-outs.',
+    render: 'assets/student/photoshop/reena-admission.jpg', poster: true },
+  { cat: 'photoshop', name: 'Admission Flyer — Full Layout', students: 'Ruba R',
+    tech: 'Photoshop · Flyer Design', desc: 'A complete info flyer practising structured grid layout, section typography and colour-blocked panels.',
+    render: 'assets/student/photoshop/ruba-admissionflyer.jpg', poster: true },
+  { cat: 'photoshop', name: 'Product Ad Poster — Lamborghini', students: 'Swethaa S (B.Sc Biotech)',
+    tech: 'Photoshop · Ad Design', desc: 'A supercar ad poster practising ghosted backdrop imagery, spec callouts and high-contrast automotive typography.',
+    render: 'assets/student/photoshop/swethaa-lamborghini.jpg', poster: true },
+  { cat: 'photoshop', name: 'Sports Tribute Poster — Panel Cut', students: 'Umurashifana B',
+    tech: 'Photoshop · Photo Collage', desc: 'A sports poster practising diagonal panel cuts, duotone shading and bold vertical typography.',
+    render: 'assets/student/photoshop/umurashifana-kohli.jpg', poster: true },
+  { cat: 'photoshop', name: 'Product Ad Poster — Royal Enfield', students: 'Umurashifana B',
+    tech: 'Photoshop · Ad Design', desc: 'A motorcycle ad layout practising ghosted background imagery, spec callouts and brand-style typography.',
+    render: 'assets/student/photoshop/umurashifana-royalenfield.jpg', poster: true },
+  { cat: 'photoshop', name: 'College Admission Poster — Silhouette', students: 'Umurashifana B',
+    tech: 'Photoshop · Compositing', desc: 'An admission poster practising silhouette duplication, rounded-frame cut-outs and layered campus photography.',
+    render: 'assets/student/photoshop/umurashifana-admission.jpg', poster: true },
+  { cat: 'photoshop', name: 'Portrait Typography Poster', students: 'Umurashifana B',
+    tech: 'Photoshop · Typography', desc: 'A magazine-style portrait poster practising split typography, large display type overlaid on a masked portrait.',
+    render: 'assets/student/photoshop/umurashifana-portrait.jpg', poster: true },
 ];
 
 /* Reconstructed mini app-screens (based on each project's real layout XML) */
@@ -588,10 +699,95 @@ const SCREENS = {
   'Pet Care': p => `${spBar('#fff')}<div class="sc pc"><div class="pc-top">🐾 Pet Care</div><div class="pc-body"><div class="pc-pet"><span class="pc-av">🐕</span><div><b>Bruno</b><small>Golden Retriever · 3y</small></div></div><small class="pc-h2">Reminders</small><div class="pc-row"><span>🍖 Feed</span><em>8:00 AM</em></div><div class="pc-row"><span>💊 Vitamin</span><em>2:00 PM</em></div><div class="pc-row"><span>🩺 Vet visit</span><em>Sat</em></div></div></div>`,
 };
 
+let activeStudentCat = 'android';
+
+const renderStudentTabs = () => {
+  const t = document.getElementById('catTabs');
+  if (!t) return;
+  t.innerHTML = CATEGORIES.map(c => {
+    const count = STUDENT_PROJECTS.filter(p => p.cat === c.id).length;
+    return `<button type="button" class="cat-tab${c.id === activeStudentCat ? ' active' : ''}" data-cat="${c.id}" role="tab" aria-selected="${c.id === activeStudentCat}">
+      <span class="cat-tab-icon" aria-hidden="true">
+        <img src="${c.logo}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+        <i style="display:none">${c.glyph}</i>
+      </span>${c.label}${count ? `<span class="cat-tab-count">${count}</span>` : ''}
+    </button>`;
+  }).join('');
+  t.querySelectorAll('.cat-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeStudentCat = btn.dataset.cat;
+      renderStudentTabs();
+      renderStudentProjects();
+    });
+  });
+
+  const noteEl = document.getElementById('catNote');
+  if (noteEl) {
+    const activeCat = CATEGORIES.find(c => c.id === activeStudentCat);
+    if (activeCat && activeCat.note) {
+      noteEl.textContent = activeCat.note;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.textContent = '';
+      noteEl.style.display = 'none';
+    }
+  }
+};
+
 const renderStudentProjects = () => {
   const g = document.getElementById('studentGrid');
   if (!g) return;
-  g.innerHTML = STUDENT_PROJECTS.map((p, i) => {
+  const list = STUDENT_PROJECTS.filter(p => p.cat === activeStudentCat);
+  if (!list.length) {
+    const cat = CATEGORIES.find(c => c.id === activeStudentCat);
+    g.innerHTML = `<div class="student-empty reveal">
+      <span class="student-empty-icon" aria-hidden="true">${cat ? cat.glyph : '🛠️'}</span>
+      <p>${cat ? cat.label : 'This'} student projects coming soon.</p>
+    </div>`;
+    return;
+  }
+  g.innerHTML = list.map((p, i) => {
+    const docLinks = (p.docs || (p.doc ? [{ label: 'View documentation', href: p.doc }] : []))
+      .map(d => `<a class="sp-doc" href="${d.href}" target="_blank" rel="noopener">📄 ${d.label}</a>`).join('');
+    if (p.video) {
+      return `
+      <article class="glass student-card cad-card reveal-scale" style="--d:${(i % 4) * 0.06}s">
+        <div class="sp-cad"><video src="${p.video}" poster="${p.poster}" controls playsinline preload="none" aria-label="${p.name} — demo by ${p.students}"></video></div>
+        <div class="sp-body">
+          <h3 class="sp-name">${p.name}</h3>
+          <p class="sp-students">${p.students}</p>
+          <p class="sp-desc">${p.desc}</p>
+          <span class="sp-tech">${p.tech}</span>
+          ${docLinks}
+        </div>
+      </article>`;
+    }
+    if (p.iconCard) {
+      return `
+      <article class="glass student-card cad-card reveal-scale" style="--d:${(i % 4) * 0.06}s">
+        <div class="sp-cad sp-icon-cad" style="background:${p.grad || 'linear-gradient(160deg,#0891b2,#164e63)'}"><span class="sp-icon-big" aria-hidden="true">${p.glyph || '📡'}</span></div>
+        <div class="sp-body">
+          <h3 class="sp-name">${p.name}</h3>
+          <p class="sp-students">${p.students}</p>
+          <p class="sp-desc">${p.desc}</p>
+          <span class="sp-tech">${p.tech}</span>
+          ${docLinks}
+        </div>
+      </article>`;
+    }
+    if (p.render) {
+      return `
+      <article class="glass student-card cad-card reveal-scale" style="--d:${(i % 4) * 0.06}s">
+        <div class="sp-cad"${p.poster ? ' style="aspect-ratio:3/4"' : ''}><img src="${p.render}" alt="${p.name} — practice work by ${p.students}" loading="lazy"></div>
+        <div class="sp-body">
+          <h3 class="sp-name">${p.name}</h3>
+          <p class="sp-students">${p.students}</p>
+          <p class="sp-desc">${p.desc}</p>
+          <span class="sp-tech">${p.tech}</span>
+          ${docLinks}
+        </div>
+      </article>`;
+    }
     let screen;
     if (p.screenshot) {
       screen = `<img class="sp-shot" src="${p.screenshot}" alt="${p.name} screen" loading="lazy">`;
@@ -1057,6 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCerts();
   renderProjects();
   renderProjectVideos();
+  renderStudentTabs();
   renderStudentProjects();
   renderTrainingPhotos();
   initParticles();
